@@ -1,0 +1,104 @@
+Range: allows access to some sequence of elements
+  SinglePassRange:
+    typename value_type
+    typename traversal
+      Requirements: must be single_pass_traversal_tag or a derived type
+    copy constructor:
+      Precondition: !other.singular
+      Effects: initializes this to be equivalent to other
+    copy assignment:
+      Precondition: !other.singular
+      Effects: sets this to be equivalent to other
+    bool empty() const
+      Precondition: !singular
+      Returns: true when there are no more elements in the range
+    explicit operator bool() const
+      Returns: !empty()
+    E front() const
+      Precondition: !singular && !empty()
+      Returns: the first element of the range
+    void drop_front() const
+      Precondition: !singular && !empty()
+      Effects: excludes first element from range
+               may make copies singular
+  ForwardRange: refines SinglePassRange
+    Restrictions: drop_front() never makes copies singular
+                  traversal must be forward_traversal_tag or a derived type
+    typename position
+      Requirements: must model Position
+    position at_front() const
+      Requirements: !singular && !empty()
+      Returns: a position that refers to the first element
+    self from(position p) const
+      Requirements: !singular && p is within range or invalid
+      Returns: a new range r with the following properties:
+                 - if p is invalid, r.empty()
+                 - otherwise, r.at_front() == p
+    ForwardRange until(position p) const
+      Requirements: !singular && p is within range or invalid
+      Returns: a new range r, possibly of different type,
+               with the following properties:
+                 - if p is invalid, r.empty()
+                 - otherwise, the following holds:
+                   while(p != at_front()) {
+                     drop_front(); r.drop_front();
+                   }
+                   assert(r.empty());
+  BidirectionalRange: refines ForwardRange
+    Restrictions: traversal must be bidirectional_traversal_tag or a derived type
+                  until()'s return type is self
+    E back() const
+      Precondition: !singular && !empty()
+      Returns: the last element of the range
+    void drop_back()
+      Precondition: !singular && !empty()
+      Effects: excludes last element from range
+    position at_back()
+      Precondition: !singular && !empty()
+      Returns: a position that refers to the last element
+  RandomAccessRange: refines BidirectionalRange
+    Restrictions: traversal must be random_access_traversal_tag or a derived type
+    size_t size() const
+      Precondition: !singular && !empty()
+      Returns: the number of times drop_front() can be called before empty() returns true
+    void skip_front(size_t n)
+      Precondition: !singular && size() >= n
+      Effects: n calls to drop_front(), but with O(1) complexity
+    void skip_back(size_t n)
+      Precondition: !singular && size() >= n
+      Effects: n calls to drop_back(), but with O(1) complexity
+    E operator[](size_t n) const
+      Precondition: !singular && size() > n
+      Returns: the same element as front() after skip_front(n)
+    position at_n(size_t n) const
+      Precondition: !singular && size() > n
+      Returns: the same position as at_front() after skip_front(n)
+  ReadableRange: refines any Range
+    Restrictions: E is convertible to value_type
+  WriteableRange: refines any Range
+    Restrictions: E can be assigned from value_type
+  RearrangeableRange: refines ForwardRange, ReadableRange and WriteableRange
+    Restrictions: position is SwappablePosition
+  LValueRange: refines ReadableRange
+    Restrictions: E is a reference to (possibly const) value_type
+                  if not const, also must refine RearrangeableRange
+
+Position: represents position in range
+  typename value_type
+    Restrictions: must be the same as the underlying range's value_type
+  default constructor
+    Effects: initializes this to be invalid
+  copy constructor
+    Precondition: !other.singular
+    Effects: initializes this to refer to the same element as other
+  copy assignment
+    Precondition: !other.singular
+    Effects: sets this to refer to the same element as other
+  explicit operator bool() const
+    Precondition: !singular
+    Returns: true if this position refers to an element,
+             false if it is invalid
+  E operator *() const
+    Precondition: !singular && (*this)
+    Returns: the element this position refers to
+    Restrictions: E must be equivalent to the E returned by the originating range's E
