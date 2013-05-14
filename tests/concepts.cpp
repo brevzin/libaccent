@@ -6,6 +6,8 @@ using namespace accent::support;
 static_assert(!SinglePassRange<int>(),
               "int is misidentified as single pass range");
 
+struct notbool {};
+
 struct sp_archetype {
   using value_type = int;
   using traversal = accent::single_pass_traversal_tag;
@@ -91,3 +93,81 @@ struct sp_garbage_traversal {
 };
 static_assert(!SinglePassRange<sp_garbage_traversal>(),
     "single pass concept cannot identify garbage traversal");
+
+struct sp_missing_empty {
+  using value_type = int;
+  using traversal = accent::single_pass_traversal_tag;
+
+  explicit operator bool() const;
+  value_type front() const;
+  void drop_front();
+};
+static_assert(!SinglePassRange<sp_missing_empty>(),
+    "single pass concept cannot identify missing empty()");
+
+struct sp_nonconst_empty {
+  using value_type = int;
+  using traversal = accent::single_pass_traversal_tag;
+
+  bool empty();
+  explicit operator bool() const;
+  value_type front() const;
+  void drop_front();
+};
+static_assert(!SinglePassRange<sp_nonconst_empty>(),
+    "single pass concept cannot identify non-const empty()");
+
+struct sp_garbage_empty {
+  using value_type = int;
+  using traversal = accent::single_pass_traversal_tag;
+
+  notbool empty() const;
+  explicit operator bool() const;
+  value_type front() const;
+  void drop_front();
+};
+
+struct sp_missing_value_type {
+  using traversal = accent::single_pass_traversal_tag;
+
+  bool empty() const;
+  explicit operator bool() const;
+  int front() const;
+  void drop_front();
+};
+static_assert(!SinglePassRange<sp_missing_value_type>(),
+    "single pass concept cannot identify missing position");
+
+struct sp_missing_front {
+  using value_type = int;
+  using traversal = accent::single_pass_traversal_tag;
+
+  bool empty() const;
+  explicit operator bool() const;
+  void drop_front();
+};
+static_assert(!SinglePassRange<sp_missing_front>(),
+    "single pass concept cannot identify missing front()");
+
+struct sp_nonconst_front {
+  using value_type = int;
+  using traversal = accent::single_pass_traversal_tag;
+
+  bool empty() const;
+  explicit operator bool() const;
+  value_type front();
+  void drop_front();
+};
+static_assert(!SinglePassRange<sp_nonconst_front>(),
+    "single pass concept cannot identify non-const front()");
+
+struct sp_missing_drop_front {
+  using value_type = int;
+  using traversal = accent::single_pass_traversal_tag;
+
+  bool empty() const;
+  explicit operator bool() const;
+  value_type front() const;
+};
+static_assert(!SinglePassRange<sp_missing_drop_front>(),
+    "single pass concept cannot identify missing drop_front");
