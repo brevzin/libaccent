@@ -14,6 +14,10 @@ namespace accent { namespace algorithms {
 
     template <typename SinglePassRange, typename Predicate>
     bool any_of(SinglePassRange r, Predicate p, std::true_type) {
+      for (; r; r.drop_front()) {
+        if (p(r.front()))
+          return true;
+      }
       return false;
     }
 
