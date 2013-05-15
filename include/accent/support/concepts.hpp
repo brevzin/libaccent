@@ -2,6 +2,7 @@
 #define LIBACCENT_SUPPORT_CONCEPTS_HPP
 
 #include "accent/tags.hpp"
+#include "accent/support/tag_functions.hpp"
 #include <type_traits>
 
 namespace accent { namespace support {
@@ -16,17 +17,6 @@ namespace accent { namespace support {
     template <typename T>
     struct has_proper_boolean_conversion
       : decltype(has_proper_boolean_conversion_helper((T*)0))
-    {};
-
-    // Test for nested type traversal and its convertibility to T.
-    template <typename T, typename R>
-    typename std::is_base_of<T, typename R::traversal>::type
-        traversal_supports_helper(R*);
-    template <typename T>
-    std::false_type traversal_supports_helper(...);
-    template <typename T, typename R>
-    struct traversal_supports
-      : decltype(traversal_supports_helper<T>((R*)0))
     {};
 
     // Test for empty() that returns convertible to bool.
@@ -78,7 +68,7 @@ namespace accent { namespace support {
     return std::is_copy_constructible<R>::value &&
            std::is_copy_assignable<R>::value &&
            detail::has_proper_boolean_conversion<R>::value &&
-           detail::traversal_supports<single_pass_traversal_tag, R>::value &&
+           traversal_supports<single_pass_traversal_tag, R>::value &&
            detail::has_empty<R>::value &&
            detail::has_value_type<R>::value &&
            detail::has_front<R>::value &&
