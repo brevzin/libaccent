@@ -39,7 +39,7 @@ namespace accent { namespace ranges {
   public:
     explicit container_adapter(C& c) : c(c) {}
 
-    iterator_range<typename C::iterator> all() const {
+    auto all() const -> iterator_range<decltype(c.begin())> {
       return { c.begin(), c.end() };
     }
   };

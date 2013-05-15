@@ -9,6 +9,12 @@ static_assert(SinglePassRange<iterator_range<
                   ivec::const_iterator>>(),
               "vector const iterator range does not model SinglePassRange");
 
+TEST(VectorRange, EmptyConstVector_Empty) {
+  const ivec v = {};
+  auto r = adapt(v).all();
+  ASSERT_TRUE(r.empty());
+}
+
 TEST(VectorRange, EmptyVector_Empty) {
   ivec v = {};
   auto r = adapt(v).all();
