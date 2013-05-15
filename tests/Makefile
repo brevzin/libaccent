@@ -19,7 +19,7 @@ CXXFLAGS = -std=c++11 -I../include -I$(gtestdir)/include \
 LDFLAGS = -stdlib=libc++ -g -O0 -L$(gtestdir)/libclang
 LDLIBS = -lgtest_main -lgtest -lc++abi
 
-test_suites = concepts vector_range any_of all_of
+test_suites = concepts vector_range any_of all_of none_of
 
 run : test
 	./test

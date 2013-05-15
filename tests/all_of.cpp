@@ -43,6 +43,13 @@ TEST(AllOf, trueTrue_isTrue)
   ASSERT_TRUE(all_of(r, positive()));
 }
 
+TEST(AllOf, falseFalse_isFalse)
+{
+  vec v = { -1, -1 };
+  auto r = v.sp();
+  ASSERT_FALSE(all_of(r, positive()));
+}
+
 TEST(AllOf, falseTrue_abortsEarly) {
   int calls = 0;
   vec v = { -1, 1 };
