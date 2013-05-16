@@ -13,7 +13,7 @@ boostdir = /Users/wasti/Documents/boost
 # Clang settings
 CC = /usr/local/bin/clang++
 CXX = /usr/local/bin/clang++
-CXXFLAGS = -std=c++11 -I../include -I$(gtestdir)/include \
+CXXFLAGS = -std=c++11 -I../include -I. -I$(gtestdir)/include \
   -I$(boostdir) -stdlib=libc++ -U__STRICT_ANSI__ -DGTEST_USE_OWN_TR1_TUPLE \
   -g -O0 -Werror
 LDFLAGS = -stdlib=libc++ -g -O0 -L$(gtestdir)/libclang
@@ -25,7 +25,9 @@ range_test_suite = vector_range
 
 support_test_suite = concepts
 
-test_suites = $(support_test_suite) $(range_test_suite) $(algo_test_suite)
+test_suites = $(addprefix support/, $(support_test_suite)) \
+              $(addprefix ranges/, $(range_test_suite)) \
+              $(addprefix algorithms/, $(algo_test_suite))
 
 run : test
 	./test
