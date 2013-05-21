@@ -26,10 +26,16 @@ public:
   vec() {}
   vec(std::initializer_list<int> l) : v(l) {}
 
+  const std::vector<int>& get() const { return v; }
+
   auto sp() const -> decltype(as_single_pass(adapt(v).all())) {
     return as_single_pass(adapt(v).all());
   }
 };
+
+inline void PrintTo(const vec& v, std::ostream* os) {
+  *os << ::testing::PrintToString(v.get());
+}
 
 struct positive {
   bool operator ()(int i) const { return i > 0; }
