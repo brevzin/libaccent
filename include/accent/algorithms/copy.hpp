@@ -10,13 +10,16 @@ namespace accent { namespace algorithms {
 
   namespace detail {
 
-    template <typename InputSinglePassRange, typename OutputSinglePassRange>
-    std::pair<InputSinglePassRange, OutputSinglePassRange>
-    copy(InputSinglePassRange, OutputSinglePassRange, std::false_type);
+    template <typename ReadableSinglePassRange,
+              typename WriteableSinglePassRange>
+    std::pair<ReadableSinglePassRange, WriteableSinglePassRange>
+    copy(ReadableSinglePassRange, WriteableSinglePassRange, std::false_type);
 
-    template <typename InputSinglePassRange, typename OutputSinglePassRange>
-    std::pair<InputSinglePassRange, OutputSinglePassRange>
-    copy(InputSinglePassRange in, OutputSinglePassRange out, std::true_type) {
+    template <typename ReadableSinglePassRange,
+              typename WriteableSinglePassRange>
+    std::pair<ReadableSinglePassRange, WriteableSinglePassRange>
+    copy(ReadableSinglePassRange in, WriteableSinglePassRange out,
+         std::true_type) {
       for (; in && out; in.drop_front(), out.drop_front()) {
         out.front() = in.front();
       }
@@ -25,16 +28,16 @@ namespace accent { namespace algorithms {
 
   }
 
-  template <typename InputSinglePassRange, typename OutputSinglePassRange>
-  std::pair<InputSinglePassRange, OutputSinglePassRange>
-  copy(InputSinglePassRange in, OutputSinglePassRange out) {
-    static_assert(support::SinglePassRange<InputSinglePassRange>(),
+  template <typename ReadableSinglePassRange, typename WriteableSinglePassRange>
+  std::pair<ReadableSinglePassRange, WriteableSinglePassRange>
+  copy(ReadableSinglePassRange in, WriteableSinglePassRange out) {
+    static_assert(support::SinglePassRange<ReadableSinglePassRange>(),
                   "copy requires a SinglePassRange for its input");
-    static_assert(support::SinglePassRange<OutputSinglePassRange>(),
+    static_assert(support::SinglePassRange<WriteableSinglePassRange>(),
                   "copy requires a SinglePassRange for its output");
     return detail::copy(in, out,
-        support::bool_<support::SinglePassRange<InputSinglePassRange>() &&
-                       support::SinglePassRange<OutputSinglePassRange>()>());
+        support::bool_<support::SinglePassRange<ReadableSinglePassRange>() &&
+                       support::SinglePassRange<WriteableSinglePassRange>()>());
   }
 
 }}
