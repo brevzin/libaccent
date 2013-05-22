@@ -21,7 +21,7 @@ LDLIBS = -lgtest_main -lgtest -lc++abi
 
 algo_test_suite = any_of all_of none_of copy
 
-range_test_suite = vector_range append
+range_test_suite = vector_range append project
 
 support_test_suite = concepts
 
