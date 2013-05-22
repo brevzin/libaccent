@@ -185,6 +185,13 @@ struct r_archetype {
 
   int front() const;
 };
-
 static_assert(ReadableRange<r_archetype>(),
               "r_archetype is misidentified as not a readable range");
+
+struct r_not_convertible {
+  typedef int* value_type;
+
+  int front() const;
+};
+static_assert(!ReadableRange<r_not_convertible>(),
+              "readable range concept cannot identify unconvertible types");
