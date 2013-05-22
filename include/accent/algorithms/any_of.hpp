@@ -9,11 +9,11 @@ namespace accent { namespace algorithms {
 
   namespace detail {
 
-    template <typename SinglePassRange, typename Predicate>
-    bool any_of(SinglePassRange, Predicate, std::false_type);
+    template <typename ReadableSinglePassRange, typename Predicate>
+    bool any_of(ReadableSinglePassRange, Predicate, std::false_type);
 
-    template <typename SinglePassRange, typename Predicate>
-    bool any_of(SinglePassRange r, Predicate p, std::true_type) {
+    template <typename ReadableSinglePassRange, typename Predicate>
+    bool any_of(ReadableSinglePassRange r, Predicate p, std::true_type) {
       for (; r; r.drop_front()) {
         if (p(r.front()))
           return true;
@@ -23,12 +23,15 @@ namespace accent { namespace algorithms {
 
   }
 
-  template <typename SinglePassRange, typename Predicate>
-  bool any_of(SinglePassRange r, Predicate p) {
-    static_assert(support::SinglePassRange<SinglePassRange>(),
+  template <typename ReadableSinglePassRange, typename Predicate>
+  bool any_of(ReadableSinglePassRange r, Predicate p) {
+    static_assert(support::SinglePassRange<ReadableSinglePassRange>(),
                   "any_of requires a SinglePassRange");
+    static_assert(support::ReadableRange<ReadableSinglePassRange>(),
+                  "any_of requires a ReadableRange");
     return detail::any_of(r, p,
-        support::bool_<support::SinglePassRange<SinglePassRange>()>());
+        support::bool_<support::SinglePassRange<ReadableSinglePassRange>() &&
+                       support::ReadableRange<ReadableSinglePassRange>()>());
   }
 
 }}

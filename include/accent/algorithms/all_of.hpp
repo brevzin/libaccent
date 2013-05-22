@@ -6,8 +6,8 @@
 
 namespace accent { namespace algorithms {
 
-  template <typename SinglePassRange, typename Predicate>
-  bool all_of(SinglePassRange r, Predicate p) {
+  template <typename ReadableSinglePassRange, typename Predicate>
+  bool all_of(ReadableSinglePassRange r, Predicate p) {
     return !any_of(r, functional::not_(p));
   }
 
