@@ -21,7 +21,7 @@ namespace accent { namespace ranges {
       static_assert(support::traversal_supports<traversal, Inner>::value,
           "Cannot use as_single_pass to increase traveral support.");
 
-      explicit as_single_pass_range(Inner inner) : inner(inner) {}
+      explicit as_single_pass_range(Inner inner) : inner(std::move(inner)) {}
 
       bool empty() const { return inner.empty(); }
       void drop_front() { inner.drop_front(); }
@@ -32,7 +32,7 @@ namespace accent { namespace ranges {
 
   template <typename Inner>
   detail::as_single_pass_range<Inner> as_single_pass(Inner inner) {
-    return detail::as_single_pass_range<Inner>(inner);
+    return detail::as_single_pass_range<Inner>(std::move(inner));
   }
 
 }}

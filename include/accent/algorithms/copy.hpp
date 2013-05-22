@@ -2,8 +2,8 @@
 #define LIBACCENT_ALGORITHMS_COPY_HPP
 
 #include "accent/support/concepts.hpp"
-#include "accent/support/tag_functions.hpp"
 #include "accent/support/utility.hpp"
+#include <type_traits>
 #include <utility>
 
 namespace accent { namespace algorithms {
