@@ -61,6 +61,17 @@ namespace accent { namespace support {
       : decltype(has_drop_front_helper((R*)0))
     {};
 
+    // Test that front() is convertible to value_type
+    template <typename R>
+    auto front_result_helper(const R* r) -> decltype(r->front());
+    struct front_result_dummy {};
+    front_result_dummy front_result_helper(...);
+    template <typename R>
+    struct front_converts_to_value_type
+      : std::is_convertible<decltype(front_result_helper((R*)0)),
+                            value_type_of<R>>
+    {};
+
   }
 
   template <typename R>
@@ -73,6 +84,11 @@ namespace accent { namespace support {
            detail::has_value_type<R>::value &&
            detail::has_front<R>::value &&
            detail::has_drop_front<R>::value;
+  }
+
+  template <typename R>
+  constexpr bool ReadableRange() {
+    return detail::front_converts_to_value_type<R>::value;
   }
 
 }}

@@ -3,6 +3,8 @@
 // These are sanity checks for the concepts.
 using namespace accent::support;
 
+// --------------------- SinglePassRange --------------------------------------
+
 static_assert(!SinglePassRange<int>(),
               "int is misidentified as single pass range");
 
@@ -171,3 +173,18 @@ struct sp_missing_drop_front {
 };
 static_assert(!SinglePassRange<sp_missing_drop_front>(),
     "single pass concept cannot identify missing drop_front");
+
+
+// --------------------- ReadableRange ----------------------------------------
+
+static_assert(!ReadableRange<int>(),
+              "int is misidentified as a readable range");
+
+struct r_archetype {
+  typedef int value_type;
+
+  int front() const;
+};
+
+static_assert(ReadableRange<r_archetype>(),
+              "r_archetype is misidentified as not a readable range");
