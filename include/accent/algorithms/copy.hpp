@@ -33,10 +33,13 @@ namespace accent { namespace algorithms {
   copy(ReadableSinglePassRange in, WriteableSinglePassRange out) {
     static_assert(support::SinglePassRange<ReadableSinglePassRange>(),
                   "copy requires a SinglePassRange for its input");
+    static_assert(support::ReadableRange<ReadableSinglePassRange>(),
+                  "copy requires a ReadableRange for its input");
     static_assert(support::SinglePassRange<WriteableSinglePassRange>(),
                   "copy requires a SinglePassRange for its output");
     return detail::copy(in, out,
         support::bool_<support::SinglePassRange<ReadableSinglePassRange>() &&
+                       support::ReadableRange<ReadableSinglePassRange>() &&
                        support::SinglePassRange<WriteableSinglePassRange>()>());
   }
 
