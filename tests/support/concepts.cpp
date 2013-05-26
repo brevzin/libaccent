@@ -195,3 +195,25 @@ struct r_not_convertible {
 };
 static_assert(!ReadableRange<r_not_convertible>(),
               "readable range concept cannot identify unconvertible types");
+
+
+// --------------------- WriteableRange ---------------------------------------
+
+static_assert(!WriteableRange<int>(),
+              "int is misidentified as a writeable range");
+
+struct w_archetype {
+  typedef int value_type;
+
+  int& front() const;
+};
+static_assert(WriteableRange<w_archetype>(),
+              "w_archetype is misidentified as not a writeable range");
+
+struct w_not_assignable {
+  typedef int value_type;
+
+  int front() const;
+};
+static_assert(!WriteableRange<w_not_assignable>(),
+              "writeable range concept cannot identify unassignable types");

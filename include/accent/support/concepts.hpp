@@ -72,6 +72,18 @@ namespace accent { namespace support {
                             value_type_of<R>>
     {};
 
+    // Test that front() can be assigned to from value_type
+    template <typename R>
+    std::true_type front_assignable_helper(const R* r,
+        typename std::decay<
+            decltype(r->front() = std::declval<value_type_of<R>>())
+        >::type* = 0);
+    std::false_type front_assignable_helper(...);
+    template <typename R>
+    struct front_assignable_from_value_type
+      : decltype(front_assignable_helper((R*)0))
+    {};
+
   }
 
   template <typename R>
@@ -89,6 +101,11 @@ namespace accent { namespace support {
   template <typename R>
   constexpr bool ReadableRange() {
     return detail::front_converts_to_value_type<R>::value;
+  }
+
+  template <typename R>
+  constexpr bool WriteableRange() {
+    return detail::front_assignable_from_value_type<R>::value;
   }
 
 }}
