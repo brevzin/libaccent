@@ -2,11 +2,11 @@
 gtestdir = /Users/wasti/Documents/tests/gtest-1.6.0
 boostdir = /Users/wasti/Documents/boost
 
-# GCC 4.6 settings
-#CC = g++-4.6
-#CXX = g++-4.6
-#CXXFLAGS = -I.. -I$(gtestdir)/include \
-#  -std=c++0x -Werror -Wall -pedantic -Wno-unused-variable -g -O0
+# GCC 4.8 settings
+#CC = g++-mp-4.8
+#CXX = g++-mp-4.8
+#CXXFLAGS = -I.. -I$(gtestdir)/include -I../include -I. -I$(boostdir) \
+#  -std=c++11 -Werror -Wall -pedantic -Wno-unused-variable -g -O0
 #LDFLAGS = -L$(gtestdir)/libgcc -g -O0
 #LDLIBS = -lgtest -lgtest_main
 
