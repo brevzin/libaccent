@@ -19,7 +19,7 @@ CXXFLAGS = -std=c++11 -I../include -I. -I$(gtestdir)/include \
 LDFLAGS = -stdlib=libc++ -g -O0 -L$(gtestdir)/libclang
 LDLIBS = -lgtest_main -lgtest -lc++abi
 
-algo_test_suite = any_of all_of none_of copy
+algo_test_suite = any_of all_of none_of copy drop_conditional
 
 range_test_suite = vector_range append project
 

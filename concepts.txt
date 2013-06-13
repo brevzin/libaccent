@@ -78,7 +78,9 @@ Range: allows access to some sequence of elements
   WriteableRange: refines any Range
     Restrictions: E can be assigned from value_type
   RearrangeableRange: refines ForwardRange, ReadableRange and WriteableRange
-    Restrictions: position is SwappablePosition
+    Motivation: sort(zip(r1, r2))
+                zip_range can't return references, it returns tuples of
+                references. We want to be able to sort this.
   LValueRange: refines ReadableRange
     Restrictions: E is a reference to (possibly const) value_type
                   if not const, also must refine RearrangeableRange
