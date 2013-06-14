@@ -61,3 +61,65 @@ TEST(DropWhile, Dropped_Undropped_Dropped_TwoRemain) {
   r.drop_front();
   ASSERT_TRUE(r.empty());
 }
+
+
+TEST(DropUntil, EmptyRange_StillEmpty) {
+  vec v;
+  auto r = drop_until(v.sp(), positive());
+  ASSERT_TRUE(r.empty());
+}
+
+TEST(DropUntil, OneUndroppedElement_ElementRemains) {
+  vec v = { 1 };
+  auto r = drop_until(v.sp(), positive());
+  ASSERT_FALSE(r.empty());
+  ASSERT_EQ(1, r.front());
+  r.drop_front();
+  ASSERT_TRUE(r.empty());
+}
+
+TEST(DropUntil, OneDroppedElement_BecomesEmpty) {
+  vec v = { -1 };
+  auto r = drop_until(v.sp(), positive());
+  ASSERT_TRUE(r.empty());
+}
+
+TEST(DropUntil, Undropped_Dropped_StaysSame) {
+  vec v = { 1, -1 };
+  auto r = drop_until(v.sp(), positive());
+  ASSERT_FALSE(r.empty());
+  ASSERT_EQ(1, r.front());
+  r.drop_front();
+  ASSERT_EQ(-1, r.front());
+  r.drop_front();
+  ASSERT_TRUE(r.empty());
+}
+
+TEST(DropUntil, Dropped_Undropped_OneRemains) {
+  vec v = { -1, 1 };
+  auto r = drop_until(v.sp(), positive());
+  ASSERT_FALSE(r.empty());
+  ASSERT_EQ(1, r.front());
+  r.drop_front();
+  ASSERT_TRUE(r.empty());
+}
+
+TEST(DropUntil, Dropped_Dropped_Undropped_OneRemains) {
+  vec v = { -1, -1, 1 };
+  auto r = drop_until(v.sp(), positive());
+  ASSERT_FALSE(r.empty());
+  ASSERT_EQ(1, r.front());
+  r.drop_front();
+  ASSERT_TRUE(r.empty());
+}
+
+TEST(DropUntil, Dropped_Undropped_Dropped_TwoRemain) {
+  vec v = { -1, 1, -1 };
+  auto r = drop_until(v.sp(), positive());
+  ASSERT_FALSE(r.empty());
+  ASSERT_EQ(1, r.front());
+  r.drop_front();
+  ASSERT_EQ(-1, r.front());
+  r.drop_front();
+  ASSERT_TRUE(r.empty());
+}

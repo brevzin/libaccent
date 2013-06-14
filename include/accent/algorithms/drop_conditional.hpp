@@ -1,6 +1,7 @@
 #ifndef LIBACCENT_ALGORITHMS_DROP_CONDITIONAL_HPP
 #define LIBACCENT_ALGORITHMS_DROP_CONDITIONAL_HPP
 
+#include "accent/functional/not.hpp"
 #include "accent/support/concepts.hpp"
 #include "accent/support/utility.hpp"
 
@@ -34,6 +35,12 @@ namespace accent { namespace algorithms {
     return detail::drop_while(r, p,
         support::bool_<support::SinglePassRange<ReadableSinglePassRange>() &&
                        support::ReadableRange<ReadableSinglePassRange>()>());
+  }
+
+  template <typename ReadableSinglePassRange, typename UnaryPredicate>
+  ReadableSinglePassRange drop_until(ReadableSinglePassRange r,
+                                     UnaryPredicate p) {
+    return drop_while(r, functional::not_(p));
   }
 
 }}
