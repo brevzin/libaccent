@@ -31,6 +31,9 @@ public:
   auto sp() const -> decltype(as_single_pass(adapt(v).all())) {
     return as_single_pass(adapt(v).all());
   }
+  auto fwd() const -> decltype(as_forward(adapt(v).all())) {
+    return as_forward(adapt(v).all());
+  }
 };
 
 inline void PrintTo(const vec& v, std::ostream* os) {

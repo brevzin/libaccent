@@ -99,6 +99,12 @@ namespace accent { namespace support {
   }
 
   template <typename R>
+  constexpr bool ForwardRange() {
+    return SinglePassRange<R>() &&
+           traversal_supports<forward_traversal_tag, R>::value;
+  }
+
+  template <typename R>
   constexpr bool ReadableRange() {
     return detail::front_converts_to_value_type<R>::value;
   }

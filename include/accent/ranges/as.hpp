@@ -28,11 +28,35 @@ namespace accent { namespace ranges {
       auto front() const -> decltype(inner.front()) { return inner.front(); }
     };
 
+    template <typename Inner>
+    class as_forward_range :
+        public support::range_base<as_forward_range<Inner>> {
+      Inner inner;
+
+    public:
+      using value_type = typename Inner::value_type;
+      using traversal = forward_traversal_tag;
+
+      static_assert(support::traversal_supports<traversal, Inner>::value,
+          "Cannot use as_forward to increase traveral support.");
+
+      explicit as_forward_range(Inner inner) : inner(std::move(inner)) {}
+
+      bool empty() const { return inner.empty(); }
+      void drop_front() { inner.drop_front(); }
+      auto front() const -> decltype(inner.front()) { return inner.front(); }
+    };
+
   }
 
   template <typename Inner>
   detail::as_single_pass_range<Inner> as_single_pass(Inner inner) {
     return detail::as_single_pass_range<Inner>(std::move(inner));
+  }
+
+  template <typename Inner>
+  detail::as_forward_range<Inner> as_forward(Inner inner) {
+    return detail::as_forward_range<Inner>(std::move(inner));
   }
 
 }}

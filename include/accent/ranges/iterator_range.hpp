@@ -8,6 +8,38 @@
 
 namespace accent { namespace ranges {
 
+  namespace detail {
+    template <typename IteratorCategory>
+    struct iterator_category_to_range_traversal;
+
+    template <>
+    struct iterator_category_to_range_traversal<std::input_iterator_tag> {
+      using type = single_pass_traversal_tag;
+    };
+
+    template <>
+    struct iterator_category_to_range_traversal<std::output_iterator_tag> {
+      using type = single_pass_traversal_tag;
+    };
+
+    template <>
+    struct iterator_category_to_range_traversal<std::forward_iterator_tag> {
+      using type = forward_traversal_tag;
+    };
+
+    template <>
+    struct iterator_category_to_range_traversal<std::bidirectional_iterator_tag>
+    {
+      using type = bidirectional_traversal_tag;
+    };
+
+    template <>
+    struct iterator_category_to_range_traversal<std::random_access_iterator_tag>
+    {
+      using type = random_access_traversal_tag;
+    };
+  }
+
   template <typename Iterator>
   class iterator_range : public support::range_base<iterator_range<Iterator>> {
     using traits = std::iterator_traits<Iterator>;
@@ -15,7 +47,8 @@ namespace accent { namespace ranges {
 
   public:
     using value_type = typename traits::value_type;
-    using traversal = single_pass_traversal_tag;
+    using traversal = typename detail::iterator_category_to_range_traversal<
+                          typename traits::iterator_category>::type;
 
     iterator_range(Iterator first, Iterator last)
       : first(first), last(last)

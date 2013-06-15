@@ -3,11 +3,11 @@
 
 typedef std::vector<int> ivec;
 
-static_assert(SinglePassRange<iterator_range<ivec::iterator>>(),
-              "vector iterator range does not model SinglePassRange");
-static_assert(SinglePassRange<iterator_range<
+static_assert(ForwardRange<iterator_range<ivec::iterator>>(),
+              "vector iterator range does not model ForwardRange");
+static_assert(ForwardRange<iterator_range<
                   ivec::const_iterator>>(),
-              "vector const iterator range does not model SinglePassRange");
+              "vector const iterator range does not model ForwardRange");
 
 TEST(VectorRange, EmptyConstVector_Empty) {
   const ivec v = {};
