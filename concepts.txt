@@ -27,8 +27,9 @@ Range: allows access to some sequence of elements
     typename position
       Requirements: must model Position
     position at_front() const
-      Requirements: !singular && !empty()
-      Returns: a position that refers to the first element
+      Requirements: !singular
+      Returns: a position that refers to the first element, or an invalid
+               position if the range is empty
     self from(position p) const
       Requirements: !singular && p is within range or invalid
       Returns: a new range r with the following properties:
@@ -36,8 +37,8 @@ Range: allows access to some sequence of elements
                  - otherwise, r.at_front() == p
     ForwardRange until(position p) const
       Requirements: !singular && p is within range or invalid
-      Returns: a new range r, possibly of different type,
-               with the following properties:
+      Returns: a new range r, possibly of different type but with same position
+               type, with the following properties:
                  - if p is invalid, r.empty()
                  - otherwise, the following holds:
                    while(p != at_front()) {
@@ -54,8 +55,9 @@ Range: allows access to some sequence of elements
       Precondition: !singular && !empty()
       Effects: excludes last element from range
     position at_back()
-      Precondition: !singular && !empty()
-      Returns: a position that refers to the last element
+      Precondition: !singular
+      Returns: a position that refers to the last element, or an invalid
+               position if the range is empty
   RandomAccessRange: refines BidirectionalRange
     Restrictions: traversal must be random_access_traversal_tag or a derived type
     size_t size() const
@@ -96,11 +98,20 @@ Position: represents position in range
   copy assignment
     Precondition: !other.singular
     Effects: sets this to refer to the same element as other
-  explicit operator bool() const
+  bool valid() const
     Precondition: !singular
     Returns: true if this position refers to an element,
              false if it is invalid
+  explicit operator bool() const
+    Returns: valid()
+  bool operator !() const
+    Returns: !valid()
   E operator *() const
     Precondition: !singular && (*this)
     Returns: the element this position refers to
-    Restrictions: E must be equivalent to the E returned by the originating range's E
+    Restrictions: E must be equivalent to the E returned by the originating range's front
+  bool operator ==(Position l, Position r)
+    Precondition: !l.singular && !r.singular
+    Returns: whether l and r refer to the same element
+  bool operator !=(Position l, Position r)
+    Returns !(l == r)
