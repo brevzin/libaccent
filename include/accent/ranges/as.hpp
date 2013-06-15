@@ -36,6 +36,7 @@ namespace accent { namespace ranges {
     public:
       using value_type = typename Inner::value_type;
       using traversal = forward_traversal_tag;
+      using position = support::position_of<Inner>;
 
       static_assert(support::traversal_supports<traversal, Inner>::value,
           "Cannot use as_forward to increase traveral support.");
@@ -45,6 +46,10 @@ namespace accent { namespace ranges {
       bool empty() const { return inner.empty(); }
       void drop_front() { inner.drop_front(); }
       auto front() const -> decltype(inner.front()) { return inner.front(); }
+
+      auto at_front() const -> decltype(inner.at_front()) {
+        return inner.at_front();
+      }
     };
 
   }

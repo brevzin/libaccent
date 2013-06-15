@@ -50,6 +50,24 @@ namespace accent { namespace ranges {
     using traversal = typename detail::iterator_category_to_range_traversal<
                           typename traits::iterator_category>::type;
 
+    class position {
+      Iterator it;
+      bool has_it;
+      friend class iterator_range;
+
+      position(Iterator it, bool has_it) : it(it), has_it(has_it) {}
+
+    public:
+      bool valid() const { return has_it; }
+      explicit operator bool() const { return valid(); }
+      bool operator !() const { return !valid(); }
+
+      auto operator *() const -> decltype(*it) {
+        assert(valid());
+        return *it;
+      }
+    };
+
     iterator_range(Iterator first, Iterator last)
       : first(first), last(last)
     {}
@@ -63,6 +81,7 @@ namespace accent { namespace ranges {
       assert(!empty());
       ++first;
     }
+    position at_front() const { return { first, !empty() }; }
   };
 
   template <typename C>

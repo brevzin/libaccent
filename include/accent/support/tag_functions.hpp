@@ -49,6 +49,11 @@ namespace accent { namespace support {
     template <typename R>
     typename R::value_type value_type_of_helper(R*);
     dummy value_type_of_helper(...);
+
+    // Grab the nested type position, if any.
+    template <typename R>
+    typename R::position position_of_helper(R*);
+    void position_of_helper(...);
   }
 
   template <typename T, typename R>
@@ -64,6 +69,9 @@ namespace accent { namespace support {
 
   template <typename R>
   using value_type_of = decltype(detail::value_type_of_helper((R*)0));
+
+  template <typename R>
+  using position_of = decltype(detail::position_of_helper((R*)0));
 
 }}
 
