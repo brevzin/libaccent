@@ -50,6 +50,13 @@ namespace accent { namespace ranges {
       auto at_front() const -> decltype(inner.at_front()) {
         return inner.at_front();
       }
+      as_forward_range from(position p) const {
+        return as_forward_range(inner.from(p));
+      }
+      auto until(position p) const
+          -> as_forward_range<decltype(inner.until(p))> {
+        return as_forward_range<decltype(inner.until(p))>(inner.until(p));
+      }
     };
 
   }

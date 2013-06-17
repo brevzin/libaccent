@@ -175,6 +175,261 @@ static_assert(!SinglePassRange<sp_missing_drop_front>(),
     "single pass concept cannot identify missing drop_front");
 
 
+// --------------------- ForwardRange -----------------------------------------
+
+struct pos_archetype {
+  using value_type = int;
+
+  bool valid() const;
+  explicit operator bool() const;
+  bool operator !() const;
+  value_type operator *() const;
+};
+bool operator ==(pos_archetype, pos_archetype);
+bool operator !=(pos_archetype, pos_archetype);
+
+template <int I>
+struct fwd_archetype_i {
+  using value_type = int;
+  using traversal = accent::forward_traversal_tag;
+  using position = pos_archetype;
+
+  bool empty() const;
+  explicit operator bool() const;
+  value_type front() const;
+  void drop_front();
+
+  position at_front() const;
+  fwd_archetype_i<I> from(position) const;
+  fwd_archetype_i<1-I> until(position) const;
+};
+using fwd_archetype = fwd_archetype_i<0>;
+
+static_assert(ForwardRange<fwd_archetype>(),
+              "fwd_archetype is misidentified as not a forward range");
+
+struct fwd_missing_position {
+  using value_type = int;
+  using traversal = accent::forward_traversal_tag;
+
+  bool empty() const;
+  explicit operator bool() const;
+  value_type front() const;
+  void drop_front();
+
+  int at_front() const;
+  fwd_missing_position from(int) const;
+  fwd_missing_position until(int) const;
+};
+
+static_assert(!ForwardRange<fwd_missing_position>(),
+              "forward concept cannot identify missing position");
+
+struct fwd_missing_at_front {
+  using value_type = int;
+  using traversal = accent::forward_traversal_tag;
+  using position = pos_archetype;
+
+  bool empty() const;
+  explicit operator bool() const;
+  value_type front() const;
+  void drop_front();
+
+  fwd_missing_at_front from(position) const;
+  fwd_missing_at_front until(position) const;
+};
+
+static_assert(!ForwardRange<fwd_missing_at_front>(),
+              "forward concept cannot identify missing at_front");
+
+struct fwd_nonconst_at_front {
+  using value_type = int;
+  using traversal = accent::forward_traversal_tag;
+  using position = pos_archetype;
+
+  bool empty() const;
+  explicit operator bool() const;
+  value_type front() const;
+  void drop_front();
+
+  position at_front();
+  fwd_missing_at_front from(position) const;
+  fwd_missing_at_front until(position) const;
+};
+
+static_assert(!ForwardRange<fwd_missing_at_front>(),
+              "forward concept cannot identify non-const at_front");
+
+struct fwd_badret_at_front {
+  using value_type = int;
+  using traversal = accent::forward_traversal_tag;
+  using position = pos_archetype;
+
+  bool empty() const;
+  explicit operator bool() const;
+  value_type front() const;
+  void drop_front();
+
+  int at_front() const;
+  fwd_badret_at_front from(position) const;
+  fwd_badret_at_front until(position) const;
+};
+
+static_assert(!ForwardRange<fwd_badret_at_front>(),
+              "forward concept cannot identify bad at_front return value");
+
+struct fwd_missing_from {
+  using value_type = int;
+  using traversal = accent::forward_traversal_tag;
+  using position = pos_archetype;
+
+  bool empty() const;
+  explicit operator bool() const;
+  value_type front() const;
+  void drop_front();
+
+  position at_front() const;
+  fwd_missing_from until(position) const;
+};
+
+static_assert(!ForwardRange<fwd_missing_from>(),
+              "forward concept cannot identify missing from");
+
+struct fwd_nonconst_from {
+  using value_type = int;
+  using traversal = accent::forward_traversal_tag;
+  using position = pos_archetype;
+
+  bool empty() const;
+  explicit operator bool() const;
+  value_type front() const;
+  void drop_front();
+
+  position at_front() const;
+  fwd_nonconst_from from(position);
+  fwd_nonconst_from until(position) const;
+};
+
+static_assert(!ForwardRange<fwd_nonconst_from>(),
+              "forward concept cannot identify non-const from");
+
+struct fwd_bad_arg_from {
+  using value_type = int;
+  using traversal = accent::forward_traversal_tag;
+  using position = pos_archetype;
+
+  bool empty() const;
+  explicit operator bool() const;
+  value_type front() const;
+  void drop_front();
+
+  position at_front() const;
+  fwd_bad_arg_from from(int) const;
+  fwd_bad_arg_from until(position) const;
+};
+
+static_assert(!ForwardRange<fwd_bad_arg_from>(),
+              "forward concept cannot identify from not taking position");
+
+struct fwd_bad_ret_from {
+  using value_type = int;
+  using traversal = accent::forward_traversal_tag;
+  using position = pos_archetype;
+
+  bool empty() const;
+  explicit operator bool() const;
+  value_type front() const;
+  void drop_front();
+
+  position at_front() const;
+  fwd_archetype from(position) const;
+  fwd_bad_ret_from until(position) const;
+};
+
+static_assert(!ForwardRange<fwd_bad_ret_from>(),
+              "forward concept cannot identify from not returning self");
+
+struct fwd_missing_until {
+  using value_type = int;
+  using traversal = accent::forward_traversal_tag;
+  using position = pos_archetype;
+
+  bool empty() const;
+  explicit operator bool() const;
+  value_type front() const;
+  void drop_front();
+
+  position at_front() const;
+  fwd_missing_until from(position) const;
+};
+
+static_assert(!ForwardRange<fwd_missing_until>(),
+              "forward concept cannot identify missing until");
+
+struct fwd_bad_arg_until {
+  using value_type = int;
+  using traversal = accent::forward_traversal_tag;
+  using position = pos_archetype;
+
+  bool empty() const;
+  explicit operator bool() const;
+  value_type front() const;
+  void drop_front();
+
+  position at_front() const;
+  fwd_bad_arg_until from(position) const;
+  fwd_bad_arg_until until(int) const;
+};
+
+static_assert(!ForwardRange<fwd_bad_arg_until>(),
+              "forward concept cannot identify until not taking position");
+
+struct fwd_bad_ret_until {
+  using value_type = int;
+  using traversal = accent::forward_traversal_tag;
+  using position = pos_archetype;
+
+  bool empty() const;
+  explicit operator bool() const;
+  value_type front() const;
+  void drop_front();
+
+  position at_front() const;
+  fwd_bad_ret_until from(position) const;
+  fwd_missing_until until(position) const;
+};
+
+static_assert(!ForwardRange<fwd_bad_ret_until>(),
+              "forward concept cannot identify until not returning range");
+
+struct fwd_inconsistent_until_position {
+  using value_type = int;
+  using traversal = accent::forward_traversal_tag;
+
+  bool empty() const;
+  explicit operator bool() const;
+  value_type front() const;
+  void drop_front();
+
+  struct position {
+    bool valid() const;
+    explicit operator bool() const;
+    bool operator !() const;
+    value_type operator *() const;
+  };
+  position at_front() const;
+  fwd_inconsistent_until_position from(position) const;
+  fwd_archetype until(position) const;
+};
+bool operator ==(fwd_inconsistent_until_position::position,
+                 fwd_inconsistent_until_position::position);
+bool operator !=(fwd_inconsistent_until_position::position,
+                 fwd_inconsistent_until_position::position);
+
+static_assert(!ForwardRange<fwd_inconsistent_until_position>(),
+              "forward concept cannot identify inconsistent position types");
+
+
 // --------------------- ReadableRange ----------------------------------------
 
 static_assert(!ReadableRange<int>(),

@@ -84,7 +84,51 @@ namespace accent { namespace support {
       : decltype(front_assignable_helper((R*)0))
     {};
 
+    // Test for at_front() that returns position
+    template <typename R>
+    auto has_at_front_helper(const R* r)
+        -> typename std::is_same<typename R::position,
+                                 decltype(r->at_front())>::type;
+    std::false_type has_at_front_helper(...);
+    template <typename R>
+    struct has_at_front
+      : decltype(has_at_front_helper((R*)0))
+    {};
+
+    // Test for from(position) that returns R
+    template <typename R>
+    auto has_from_helper(const R* r)
+        -> typename std::is_same<R, decltype(r->from(r->at_front()))>::type;
+    std::false_type has_from_helper(...);
+    template <typename R>
+    struct has_from : decltype(has_from_helper((R*)0)) {};
+
+    // Test for until(position). Can't test here that it's a forward range.
+    template <typename R>
+    std::true_type has_until_helper(const R* r,
+                                    decltype(r->until(r->at_front()))* = 0);
+    std::false_type has_until_helper(...);
+    template <typename R>
+    struct has_until : decltype(has_until_helper((R*)0)) {};
+
+    // Get the return type of until(position), or else void.
+    template <typename R>
+    auto until_return_type(const R* r) -> decltype(r->until(r->at_front()));
+    void until_return_type(...);
+
+    // Check that a range's position type is the same as the until-range's.
+    template <typename R>
+    struct until_consistent_position
+      : std::is_same<position_of<R>,
+                     position_of<decltype(until_return_type((R*)0))>>
+    {};
+
   }
+
+  template <typename P>
+  constexpr bool Position() {
+    return !std::is_same<P, void>::value;
+  };
 
   template <typename R>
   constexpr bool SinglePassRange() {
@@ -98,10 +142,28 @@ namespace accent { namespace support {
            detail::has_drop_front<R>::value;
   }
 
+  namespace detail {
+
+    template <typename R>
+    constexpr bool ForwardRangeWithoutUntilTypeCheck() {
+      return SinglePassRange<R>() &&
+             traversal_supports<forward_traversal_tag, R>::value &&
+             Position<position_of<R>>() &&
+             has_at_front<R>::value &&
+             has_from<R>::value &&
+             has_until<R>::value;
+    }
+
+  }
+
   template <typename R>
   constexpr bool ForwardRange() {
-    return SinglePassRange<R>() &&
-           traversal_supports<forward_traversal_tag, R>::value;
+    // We do only a partial check of the until return type, to avoid going
+    // into endless recursion.
+    return detail::ForwardRangeWithoutUntilTypeCheck<R>() &&
+           detail::ForwardRangeWithoutUntilTypeCheck<
+               decltype(detail::until_return_type((R*)0))>() &&
+           detail::until_consistent_position<R>::value;
   }
 
   template <typename R>

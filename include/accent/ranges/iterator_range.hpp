@@ -82,6 +82,16 @@ namespace accent { namespace ranges {
       ++first;
     }
     position at_front() const { return { first, !empty() }; }
+    iterator_range from(position p) const {
+      if (!p) return { last, last };
+      // If random-access, should assert first <= p.it <= last.
+      return { p.it, last };
+    }
+    iterator_range until(position p) const {
+      if (!p) return { last, last };
+      // If random-access, should assert first <= p.it <= last.
+      return { first, p.it };
+    }
   };
 
   template <typename C>
