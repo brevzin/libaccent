@@ -6,9 +6,12 @@ Range: allows access to some sequence of elements
     copy constructor:
       Precondition: !other.singular
       Effects: initializes this to be equivalent to other
+               equivalent means that traversing either range yields the same
+               elements (though not at the same time due to the single pass
+               propert)
     copy assignment:
       Precondition: !other.singular
-      Effects: sets this to be equivalent to other
+      Effects: sets this to be equivalent to other, see above for equivalency
     bool empty() const
       Precondition: !singular
       Returns: true when there are no more elements in the range
@@ -26,6 +29,8 @@ Range: allows access to some sequence of elements
                   traversal must be forward_traversal_tag or a derived type
     typename position
       Requirements: must model Position
+                    Position::value_type and value_type are the same type
+                    Position::operator* and front() return value are the same type
     position at_front() const
       Requirements: !singular
       Returns: a position that refers to the first element, or an invalid
@@ -89,7 +94,6 @@ Range: allows access to some sequence of elements
 
 Position: represents position in range
   typename value_type
-    Restrictions: must be the same as the underlying range's value_type
   default constructor
     Effects: initializes this to be invalid
   copy constructor
@@ -104,12 +108,9 @@ Position: represents position in range
              false if it is invalid
   explicit operator bool() const
     Returns: valid()
-  bool operator !() const
-    Returns: !valid()
   E operator *() const
-    Precondition: !singular && (*this)
+    Precondition: !singular && valid()
     Returns: the element this position refers to
-    Restrictions: E must be equivalent to the E returned by the originating range's front
   bool operator ==(Position l, Position r)
     Precondition: !l.singular && !r.singular
     Returns: whether l and r refer to the same element

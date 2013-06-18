@@ -58,13 +58,24 @@ namespace accent { namespace ranges {
       position(Iterator it, bool has_it) : it(it), has_it(has_it) {}
 
     public:
+      using value_type = typename traits::value_type;
+
+      position() : has_it(false) {}
+
       bool valid() const { return has_it; }
       explicit operator bool() const { return valid(); }
-      bool operator !() const { return !valid(); }
 
       auto operator *() const -> decltype(*it) {
         assert(valid());
         return *it;
+      }
+
+      friend bool operator ==(const position& l, const position& r) {
+        if (l && r) return l.it == r.it;
+        return l.valid() == r.valid();
+      }
+      friend bool operator !=(const position& l, const position& r) {
+        return !(l == r);
       }
     };
 

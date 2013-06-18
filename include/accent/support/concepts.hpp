@@ -3,6 +3,7 @@
 
 #include "accent/tags.hpp"
 #include "accent/support/tag_functions.hpp"
+#include "accent/support/utility.hpp"
 #include <type_traits>
 
 namespace accent { namespace support {
@@ -17,6 +18,46 @@ namespace accent { namespace support {
     template <typename T>
     struct has_proper_boolean_conversion
       : decltype(has_proper_boolean_conversion_helper((T*)0))
+    {};
+
+    // Test for valid() that returns convertible to bool.
+    template <typename P>
+    auto has_valid_helper(const P* p)
+        -> typename std::is_convertible<decltype(p->valid()), bool>::type;
+    std::false_type has_valid_helper(...);
+    template <typename P>
+    struct has_valid
+      : decltype(has_valid_helper((P*)0))
+    {};
+
+    // Test for operator * that returns non-void.
+    template <typename P>
+    auto has_dereference_helper(const P* p)
+        -> bool_<!std::is_same<decltype(**p), void>::value>;
+    std::false_type has_dereference_helper(...);
+    template <typename P>
+    struct has_dereference
+      : decltype(has_dereference_helper((P*)0))
+    {};
+
+    // Test for equality operator that returns convertible to bool.
+    template <typename P>
+    auto has_equality_helper(const P* p)
+        -> typename std::is_convertible<decltype(*p == *p), bool>::type;
+    std::false_type has_equality_helper(...);
+    template <typename P>
+    struct has_equality
+      : decltype(has_equality_helper((P*)0))
+    {};
+
+    // Test for inequality operator that returns convertible to bool.
+    template <typename P>
+    auto has_inequality_helper(const P* p)
+        -> typename std::is_convertible<decltype(*p != *p), bool>::type;
+    std::false_type has_inequality_helper(...);
+    template <typename P>
+    struct has_inequality
+      : decltype(has_inequality_helper((P*)0))
     {};
 
     // Test for empty() that returns convertible to bool.
@@ -42,9 +83,7 @@ namespace accent { namespace support {
     // Test for front() that returns non-void.
     template <typename R>
     auto has_front_helper(const R* r)
-        -> typename std::conditional<
-            std::is_same<decltype(r->front()), void>::value,
-            std::false_type, std::true_type>::type;
+        -> bool_<!std::is_same<decltype(r->front()), void>::value>;
     std::false_type has_front_helper(...);
     template <typename R>
     struct has_front
@@ -82,6 +121,19 @@ namespace accent { namespace support {
     template <typename R>
     struct front_assignable_from_value_type
       : decltype(front_assignable_helper((R*)0))
+    {};
+
+    // Test that range and position have the same value_type and access return
+    // type.
+    template <typename R, typename P>
+    auto position_compatible_helper(const R* r, const P* p)
+      -> bool_<std::is_same<typename R::value_type,
+                            typename P::value_type>::value &&
+               std::is_same<decltype(r->front()), decltype(**p)>::value>;
+    std::false_type position_compatible_helper(...);
+    template <typename R, typename P>
+    struct position_compatible
+      : decltype(position_compatible_helper((R*)0, (P*)0))
     {};
 
     // Test for at_front() that returns position
@@ -127,7 +179,15 @@ namespace accent { namespace support {
 
   template <typename P>
   constexpr bool Position() {
-    return !std::is_same<P, void>::value;
+    return detail::has_value_type<P>::value &&
+           detail::has_valid<P>::value &&
+           std::is_default_constructible<P>::value &&
+           std::is_copy_constructible<P>::value &&
+           std::is_copy_assignable<P>::value &&
+           detail::has_proper_boolean_conversion<P>::value &&
+           detail::has_dereference<P>::value &&
+           detail::has_equality<P>::value &&
+           detail::has_inequality<P>::value;
   };
 
   template <typename R>
@@ -149,6 +209,7 @@ namespace accent { namespace support {
       return SinglePassRange<R>() &&
              traversal_supports<forward_traversal_tag, R>::value &&
              Position<position_of<R>>() &&
+             position_compatible<R, position_of<R>>::value &&
              has_at_front<R>::value &&
              has_from<R>::value &&
              has_until<R>::value;
