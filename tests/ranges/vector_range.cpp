@@ -77,6 +77,14 @@ TEST(VectorRange, OneElementVector_AtFrontIsElement) {
   ASSERT_EQ(1, *p);
 }
 
+TEST(VectorRange, OneElementVector_DropFront_InvalidAtFront) {
+  ivec v = { 1 };
+  auto r = adapt(v).all();
+  r.drop_front();
+  auto p = r.at_front();
+  ASSERT_FALSE(p.valid());
+}
+
 TEST(VectorRange, TwoElementVector_DropFront_AtFrontIsSecondElement) {
   ivec v = { 1, 2 };
   auto r = adapt(v).all();
