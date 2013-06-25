@@ -66,7 +66,7 @@ Range: allows access to some sequence of elements
   RandomAccessRange: refines BidirectionalRange
     Restrictions: traversal must be random_access_traversal_tag or a derived type
     size_t size() const
-      Precondition: !singular && !empty()
+      Precondition: !singular
       Returns: the number of times drop_front() can be called before empty() returns true
     void skip_front(size_t n)
       Precondition: !singular && size() >= n
