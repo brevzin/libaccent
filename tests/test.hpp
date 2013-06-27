@@ -31,10 +31,26 @@ public:
   auto sp() const -> decltype(as_single_pass(adapt(v).all())) {
     return as_single_pass(adapt(v).all());
   }
+  auto sp() -> decltype(as_single_pass(adapt(v).all())) {
+    return as_single_pass(adapt(v).all());
+  }
   auto fwd() const -> decltype(as_forward(adapt(v).all())) {
     return as_forward(adapt(v).all());
   }
+  auto fwd() -> decltype(as_forward(adapt(v).all())) {
+    return as_forward(adapt(v).all());
+  }
+  auto bidi() const -> decltype(as_bidirectional(adapt(v).all())) {
+    return as_bidirectional(adapt(v).all());
+  }
+  auto bidi() -> decltype(as_bidirectional(adapt(v).all())) {
+    return as_bidirectional(adapt(v).all());
+  }
 };
+
+inline bool operator ==(const vec& lhs, const vec& rhs) {
+  return lhs.get() == rhs.get();
+}
 
 inline void PrintTo(const vec& v, std::ostream* os) {
   *os << ::testing::PrintToString(v.get());

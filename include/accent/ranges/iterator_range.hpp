@@ -103,6 +103,16 @@ namespace accent { namespace ranges {
       // If random-access, should assert first <= p.it <= last.
       return { first, p.it };
     }
+    auto back() const -> decltype(*first) {
+      assert(!empty());
+      auto it = last;
+      --it;
+      return *it;
+    }
+    void drop_back() {
+      assert(!empty());
+      --last;
+    }
   };
 
   template <typename C>

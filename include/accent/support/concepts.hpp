@@ -228,6 +228,11 @@ namespace accent { namespace support {
   }
 
   template <typename R>
+  constexpr bool BidirectionalRange() {
+    return ForwardRange<R>();
+  }
+
+  template <typename R>
   constexpr bool ReadableRange() {
     return detail::front_converts_to_value_type<R>::value;
   }
@@ -235,6 +240,12 @@ namespace accent { namespace support {
   template <typename R>
   constexpr bool WriteableRange() {
     return detail::front_assignable_from_value_type<R>::value;
+  }
+
+  template <typename R>
+  constexpr bool RearrangeableRange() {
+    return ReadableRange<R>() &&
+           WriteableRange<R>();
   }
 
 }}

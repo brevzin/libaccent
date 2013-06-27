@@ -59,6 +59,39 @@ namespace accent { namespace ranges {
       }
     };
 
+    template <typename Inner>
+    class as_bidirectional_range :
+        public support::range_base<as_bidirectional_range<Inner>> {
+      Inner inner;
+
+    public:
+      using value_type = typename Inner::value_type;
+      using traversal = bidirectional_traversal_tag;
+      using position = support::position_of<Inner>;
+
+      static_assert(support::traversal_supports<traversal, Inner>::value,
+          "Cannot use as_bidirectional to increase traveral support.");
+
+      explicit as_bidirectional_range(Inner inner) : inner(std::move(inner)) {}
+
+      bool empty() const { return inner.empty(); }
+      void drop_front() { inner.drop_front(); }
+      auto front() const -> decltype(inner.front()) { return inner.front(); }
+
+      auto at_front() const -> decltype(inner.at_front()) {
+        return inner.at_front();
+      }
+      as_bidirectional_range from(position p) const {
+        return as_bidirectional_range(inner.from(p));
+      }
+      as_bidirectional_range until(position p) const {
+        return as_bidirectional_range(inner.until(p));
+      }
+
+      auto back() const -> decltype(inner.back()) { return inner.back(); }
+      void drop_back() { inner.drop_back(); }
+    };
+
   }
 
   template <typename Inner>
@@ -69,6 +102,11 @@ namespace accent { namespace ranges {
   template <typename Inner>
   detail::as_forward_range<Inner> as_forward(Inner inner) {
     return detail::as_forward_range<Inner>(std::move(inner));
+  }
+
+  template <typename Inner>
+  detail::as_bidirectional_range<Inner> as_bidirectional(Inner inner) {
+    return detail::as_bidirectional_range<Inner>(std::move(inner));
   }
 
 }}
