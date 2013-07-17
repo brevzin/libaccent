@@ -92,13 +92,10 @@ namespace accent { namespace support {
 
     // Test for drop_front().
     template <typename R>
-    std::true_type has_drop_front_helper(R* r,
-        decltype(r->drop_front())* = 0);
+    std::true_type has_drop_front_helper(R* r, decltype(r->drop_front())* = 0);
     std::false_type has_drop_front_helper(...);
     template <typename R>
-    struct has_drop_front
-      : decltype(has_drop_front_helper((R*)0))
-    {};
+    struct has_drop_front : decltype(has_drop_front_helper((R*)0)) {};
 
     // Test that front() is convertible to value_type
     template <typename R>
@@ -175,6 +172,35 @@ namespace accent { namespace support {
                      position_of<decltype(until_return_type((R*)0))>>
     {};
 
+    // Test for back() that returns the same thing as front()
+    template <typename R>
+    auto has_back_helper(const R* r)
+        -> bool_<std::is_same<decltype(r->back()),
+                              decltype(r->front())>::value>;
+    std::false_type has_back_helper(...);
+    template <typename R>
+    struct has_back
+      : decltype(has_back_helper((R*)0))
+    {};
+
+    // Test for drop_back().
+    template <typename R>
+    std::true_type has_drop_back_helper(R* r, decltype(r->drop_back())* = 0);
+    std::false_type has_drop_back_helper(...);
+    template <typename R>
+    struct has_drop_back : decltype(has_drop_back_helper((R*)0)) {};
+
+    // Test for at_back() that returns position
+    template <typename R>
+    auto has_at_back_helper(const R* r)
+        -> typename std::is_same<typename R::position,
+                                 decltype(r->at_back())>::type;
+    std::false_type has_at_back_helper(...);
+    template <typename R>
+    struct has_at_back
+      : decltype(has_at_back_helper((R*)0))
+    {};
+
   }
 
   template <typename P>
@@ -229,7 +255,12 @@ namespace accent { namespace support {
 
   template <typename R>
   constexpr bool BidirectionalRange() {
-    return ForwardRange<R>();
+    return detail::ForwardRangeWithoutUntilTypeCheck<R>() &&
+           traversal_supports<bidirectional_traversal_tag, R>::value &&
+           detail::has_back<R>::value &&
+           detail::has_drop_back<R>::value &&
+           detail::has_at_back<R>::value &&
+           std::is_same<R, decltype(detail::until_return_type((R*)0))>::value;
   }
 
   template <typename R>

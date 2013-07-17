@@ -113,6 +113,13 @@ namespace accent { namespace ranges {
       assert(!empty());
       --last;
     }
+    position at_back() const {
+      if (empty())
+        return { first, false };
+      auto it = last;
+      --it;
+      return { it, true };
+    }
   };
 
   template <typename C>

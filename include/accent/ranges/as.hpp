@@ -90,6 +90,9 @@ namespace accent { namespace ranges {
 
       auto back() const -> decltype(inner.back()) { return inner.back(); }
       void drop_back() { inner.drop_back(); }
+      auto at_back() const -> decltype(inner.at_back()) {
+        return inner.at_back();
+      }
     };
 
   }
