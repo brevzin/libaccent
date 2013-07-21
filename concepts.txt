@@ -85,6 +85,18 @@ Range: allows access to some sequence of elements
   WriteableRange: refines any Range
     Restrictions: E can be assigned from value_type
   RearrangeableRange: refines ForwardRange, ReadableRange and WriteableRange
+    Restrictions: Given two non-empty ranges r and s, the following expressions
+                  and statements shall be valid and behave consistently with
+                  the Swappable, MoveConstructible and MoveAssignable concepts:
+      value_type v(std::move_if_noexcept(r.front()));
+      value_type w(std::move_if_noexcept(v));
+      using std::swap;
+      swap(v, r.front());
+      swap(r.front(), v);
+      swap(v, w);
+      swap(r.front(), s.front());
+      r.front() = std::move_if_noexcept(v);
+      v = std::move_if_noexcept(r.front());
     Motivation: sort(zip(r1, r2))
                 zip_range can't return references, it returns tuples of
                 references. We want to be able to sort this.
