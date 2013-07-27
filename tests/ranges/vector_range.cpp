@@ -3,11 +3,11 @@
 
 typedef std::vector<int> ivec;
 
-static_assert(ForwardRange<iterator_range<ivec::iterator>>(),
-              "vector iterator range does not model ForwardRange");
-static_assert(ForwardRange<iterator_range<
+static_assert(BidirectionalRange<iterator_range<ivec::iterator>>(),
+              "vector iterator range does not model BidirectionalRange");
+static_assert(BidirectionalRange<iterator_range<
                   ivec::const_iterator>>(),
-              "vector const iterator range does not model ForwardRange");
+              "vector const iterator range does not model BidirectionalRange");
 
 TEST(VectorRange, EmptyConstVector_Empty) {
   const ivec v = {};
@@ -94,12 +94,12 @@ TEST(VectorRange, TwoElementVector_DropFront_AtFrontIsSecondElement) {
   ASSERT_EQ(2, *p);
 }
 
-TEST(VectorRange, ThreeElementVector_FromSecondElement_ContainsLastTwo) {
+TEST(VectorRange, ThreeElementVector_SetFrontSecondElement_ContainsLastTwo) {
   ivec v = { 1, 2, 3 };
   auto r = adapt(v).all();
   auto s = r;
   s.drop_front();
-  r = r.from(s.at_front());
+  r.set_front(s.at_front());
   ASSERT_FALSE(r.empty());
   ASSERT_EQ(2, r.front());
   r.drop_front();
@@ -109,14 +109,17 @@ TEST(VectorRange, ThreeElementVector_FromSecondElement_ContainsLastTwo) {
   ASSERT_TRUE(r.empty());
 }
 
-TEST(VectorRange, ThreeElementVector_UntilSecondElement_ContainsFirst) {
+TEST(VectorRange, ThreeElementVector_SetBackSecondElement_ContainsFirstTwo) {
   ivec v = { 1, 2, 3 };
   auto r = adapt(v).all();
   auto s = r;
   s.drop_front();
-  r = r.until(s.at_front());
+  r.set_back(s.at_front());
   ASSERT_FALSE(r.empty());
   ASSERT_EQ(1, r.front());
+  r.drop_front();
+  ASSERT_FALSE(r.empty());
+  ASSERT_EQ(2, r.front());
   r.drop_front();
   ASSERT_TRUE(r.empty());
 }

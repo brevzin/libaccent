@@ -32,24 +32,12 @@ Range: allows access to some sequence of elements
                     Position::value_type and value_type are the same type
                     Position::operator* and front() return value are the same type
     position at_front() const
-      Requirements: !singular
+      Precondition: !singular
       Returns: a position that refers to the first element, or an invalid
                position if the range is empty
-    self from(position p) const
-      Requirements: !singular && p is within range or invalid
-      Returns: a new range r with the following properties:
-                 - if p is invalid, r.empty()
-                 - otherwise, r.at_front() == p
-    ForwardRange until(position p) const
-      Requirements: !singular && p is within range or invalid
-      Returns: a new range r, possibly of different type but with same position
-               type, with the following properties:
-                 - if p is invalid, r.empty()
-                 - otherwise, the following holds:
-                   while(p != at_front()) {
-                     drop_front(); r.drop_front();
-                   }
-                   assert(r.empty());
+    void set_front(position p)
+      Precondition: !singular && p is within range
+      Effects: while (p != r.at_front()) r.drop_front(); with O(1) complexity
   BidirectionalRange: refines ForwardRange
     Restrictions: traversal must be bidirectional_traversal_tag or a derived type
                   until()'s return type is self
@@ -59,10 +47,13 @@ Range: allows access to some sequence of elements
     void drop_back()
       Precondition: !singular && !empty()
       Effects: excludes last element from range
-    position at_back()
+    position at_back() const
       Precondition: !singular
       Returns: a position that refers to the last element, or an invalid
                position if the range is empty
+    void set_back(position p)
+      Precondition: !singular && p is within range
+      Effects: while (p != r.at_back()) r.drop_back(); with O(1) complexity
   RandomAccessRange: refines BidirectionalRange
     Restrictions: traversal must be random_access_traversal_tag or a derived type
     size_t size() const

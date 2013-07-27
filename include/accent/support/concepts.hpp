@@ -144,33 +144,13 @@ namespace accent { namespace support {
       : decltype(has_at_front_helper((R*)0))
     {};
 
-    // Test for from(position) that returns R
+    // Test for set_front(position)
     template <typename R>
-    auto has_from_helper(const R* r)
-        -> typename std::is_same<R, decltype(r->from(r->at_front()))>::type;
-    std::false_type has_from_helper(...);
+    std::true_type has_set_front_helper(R* r,
+                                    decltype(r->set_front(r->at_front()))* = 0);
+    std::false_type has_set_front_helper(...);
     template <typename R>
-    struct has_from : decltype(has_from_helper((R*)0)) {};
-
-    // Test for until(position). Can't test here that it's a forward range.
-    template <typename R>
-    std::true_type has_until_helper(const R* r,
-                                    decltype(r->until(r->at_front()))* = 0);
-    std::false_type has_until_helper(...);
-    template <typename R>
-    struct has_until : decltype(has_until_helper((R*)0)) {};
-
-    // Get the return type of until(position), or else void.
-    template <typename R>
-    auto until_return_type(const R* r) -> decltype(r->until(r->at_front()));
-    void until_return_type(...);
-
-    // Check that a range's position type is the same as the until-range's.
-    template <typename R>
-    struct until_consistent_position
-      : std::is_same<position_of<R>,
-                     position_of<decltype(until_return_type((R*)0))>>
-    {};
+    struct has_set_front : decltype(has_set_front_helper((R*)0)) {};
 
     // Test for back() that returns the same thing as front()
     template <typename R>
@@ -201,6 +181,14 @@ namespace accent { namespace support {
       : decltype(has_at_back_helper((R*)0))
     {};
 
+    // Test for set_back(position)
+    template <typename R>
+    std::true_type has_set_back_helper(R* r,
+                                      decltype(r->set_back(r->at_back()))* = 0);
+    std::false_type has_set_back_helper(...);
+    template <typename R>
+    struct has_set_back : decltype(has_set_back_helper((R*)0)) {};
+
   }
 
   template <typename P>
@@ -228,39 +216,24 @@ namespace accent { namespace support {
            detail::has_drop_front<R>::value;
   }
 
-  namespace detail {
-
-    template <typename R>
-    constexpr bool ForwardRangeWithoutUntilTypeCheck() {
-      return SinglePassRange<R>() &&
-             traversal_supports<forward_traversal_tag, R>::value &&
-             Position<position_of<R>>() &&
-             position_compatible<R, position_of<R>>::value &&
-             has_at_front<R>::value &&
-             has_from<R>::value &&
-             has_until<R>::value;
-    }
-
-  }
-
   template <typename R>
   constexpr bool ForwardRange() {
-    // We do only a partial check of the until return type, to avoid going
-    // into endless recursion.
-    return detail::ForwardRangeWithoutUntilTypeCheck<R>() &&
-           detail::ForwardRangeWithoutUntilTypeCheck<
-               decltype(detail::until_return_type((R*)0))>() &&
-           detail::until_consistent_position<R>::value;
+    return SinglePassRange<R>() &&
+           traversal_supports<forward_traversal_tag, R>::value &&
+           Position<position_of<R>>() &&
+           detail::position_compatible<R, position_of<R>>::value &&
+           detail::has_at_front<R>::value &&
+           detail::has_set_front<R>::value;
   }
 
   template <typename R>
   constexpr bool BidirectionalRange() {
-    return detail::ForwardRangeWithoutUntilTypeCheck<R>() &&
+    return ForwardRange<R>() &&
            traversal_supports<bidirectional_traversal_tag, R>::value &&
            detail::has_back<R>::value &&
            detail::has_drop_back<R>::value &&
            detail::has_at_back<R>::value &&
-           std::is_same<R, decltype(detail::until_return_type((R*)0))>::value;
+           detail::has_set_back<R>::value;
   }
 
   template <typename R>

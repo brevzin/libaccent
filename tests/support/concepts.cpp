@@ -460,8 +460,7 @@ static_assert(!SinglePassRange<sp_missing_drop_front>(),
 
 static_assert(!ForwardRange<int>(), "int misidentified as a forward range");
 
-template <int I>
-struct fwd_archetype_i {
+struct fwd_archetype {
   using value_type = int;
   using traversal = accent::forward_traversal_tag;
   using position = pos_archetype;
@@ -472,10 +471,8 @@ struct fwd_archetype_i {
   void drop_front();
 
   position at_front() const;
-  fwd_archetype_i<I> from(position) const;
-  fwd_archetype_i<1-I> until(position) const;
+  void set_front(position);
 };
-using fwd_archetype = fwd_archetype_i<0>;
 
 static_assert(ForwardRange<fwd_archetype>(),
               "fwd_archetype is misidentified as not a forward range");
@@ -491,8 +488,7 @@ struct fwd_insufficient_traversal {
   void drop_front();
 
   position at_front() const;
-  fwd_insufficient_traversal from(position) const;
-  fwd_insufficient_traversal until(position) const;
+  void set_front(position);
 };
 
 static_assert(!ForwardRange<fwd_insufficient_traversal>(),
@@ -508,8 +504,7 @@ struct fwd_missing_position {
   void drop_front();
 
   int at_front() const;
-  fwd_missing_position from(int) const;
-  fwd_missing_position until(int) const;
+  void set_front(int);
 };
 
 static_assert(!ForwardRange<fwd_missing_position>(),
@@ -531,8 +526,7 @@ struct fwd_incompatible_position {
     value_type operator *() const;
   };
   position at_front() const;
-  fwd_incompatible_position from(position) const;
-  fwd_incompatible_position until(position) const;
+  void set_front(position);
 };
 bool operator ==(fwd_incompatible_position::position,
                  fwd_incompatible_position::position);
@@ -552,8 +546,7 @@ struct fwd_missing_at_front {
   value_type front() const;
   void drop_front();
 
-  fwd_missing_at_front from(position) const;
-  fwd_missing_at_front until(position) const;
+  void set_front(position);
 };
 
 static_assert(!ForwardRange<fwd_missing_at_front>(),
@@ -570,8 +563,7 @@ struct fwd_nonconst_at_front {
   void drop_front();
 
   position at_front();
-  fwd_missing_at_front from(position) const;
-  fwd_missing_at_front until(position) const;
+  void set_front(position);
 };
 
 static_assert(!ForwardRange<fwd_missing_at_front>(),
@@ -588,14 +580,13 @@ struct fwd_badret_at_front {
   void drop_front();
 
   int at_front() const;
-  fwd_badret_at_front from(position) const;
-  fwd_badret_at_front until(position) const;
+  void set_front(position);
 };
 
 static_assert(!ForwardRange<fwd_badret_at_front>(),
               "forward concept cannot identify bad at_front return value");
 
-struct fwd_missing_from {
+struct fwd_missing_set_front {
   using value_type = int;
   using traversal = accent::forward_traversal_tag;
   using position = pos_archetype;
@@ -606,13 +597,12 @@ struct fwd_missing_from {
   void drop_front();
 
   position at_front() const;
-  fwd_missing_from until(position) const;
 };
 
-static_assert(!ForwardRange<fwd_missing_from>(),
-              "forward concept cannot identify missing from");
+static_assert(!ForwardRange<fwd_missing_set_front>(),
+              "forward concept cannot identify missing set_front");
 
-struct fwd_nonconst_from {
+struct fwd_bad_arg_set_front {
   using value_type = int;
   using traversal = accent::forward_traversal_tag;
   using position = pos_archetype;
@@ -623,128 +613,11 @@ struct fwd_nonconst_from {
   void drop_front();
 
   position at_front() const;
-  fwd_nonconst_from from(position);
-  fwd_nonconst_from until(position) const;
+  void set_front(int);
 };
 
-static_assert(!ForwardRange<fwd_nonconst_from>(),
-              "forward concept cannot identify non-const from");
-
-struct fwd_bad_arg_from {
-  using value_type = int;
-  using traversal = accent::forward_traversal_tag;
-  using position = pos_archetype;
-
-  bool empty() const;
-  explicit operator bool() const;
-  value_type front() const;
-  void drop_front();
-
-  position at_front() const;
-  fwd_bad_arg_from from(int) const;
-  fwd_bad_arg_from until(position) const;
-};
-
-static_assert(!ForwardRange<fwd_bad_arg_from>(),
-              "forward concept cannot identify from not taking position");
-
-struct fwd_bad_ret_from {
-  using value_type = int;
-  using traversal = accent::forward_traversal_tag;
-  using position = pos_archetype;
-
-  bool empty() const;
-  explicit operator bool() const;
-  value_type front() const;
-  void drop_front();
-
-  position at_front() const;
-  fwd_archetype from(position) const;
-  fwd_bad_ret_from until(position) const;
-};
-
-static_assert(!ForwardRange<fwd_bad_ret_from>(),
-              "forward concept cannot identify from not returning self");
-
-struct fwd_missing_until {
-  using value_type = int;
-  using traversal = accent::forward_traversal_tag;
-  using position = pos_archetype;
-
-  bool empty() const;
-  explicit operator bool() const;
-  value_type front() const;
-  void drop_front();
-
-  position at_front() const;
-  fwd_missing_until from(position) const;
-};
-
-static_assert(!ForwardRange<fwd_missing_until>(),
-              "forward concept cannot identify missing until");
-
-struct fwd_bad_arg_until {
-  using value_type = int;
-  using traversal = accent::forward_traversal_tag;
-  using position = pos_archetype;
-
-  bool empty() const;
-  explicit operator bool() const;
-  value_type front() const;
-  void drop_front();
-
-  position at_front() const;
-  fwd_bad_arg_until from(position) const;
-  fwd_bad_arg_until until(int) const;
-};
-
-static_assert(!ForwardRange<fwd_bad_arg_until>(),
-              "forward concept cannot identify until not taking position");
-
-struct fwd_bad_ret_until {
-  using value_type = int;
-  using traversal = accent::forward_traversal_tag;
-  using position = pos_archetype;
-
-  bool empty() const;
-  explicit operator bool() const;
-  value_type front() const;
-  void drop_front();
-
-  position at_front() const;
-  fwd_bad_ret_until from(position) const;
-  fwd_missing_until until(position) const;
-};
-
-static_assert(!ForwardRange<fwd_bad_ret_until>(),
-              "forward concept cannot identify until not returning range");
-
-struct fwd_inconsistent_until_position {
-  using value_type = int;
-  using traversal = accent::forward_traversal_tag;
-
-  bool empty() const;
-  explicit operator bool() const;
-  value_type front() const;
-  void drop_front();
-
-  struct position {
-    using value_type = int;
-    bool valid() const;
-    explicit operator bool() const;
-    value_type operator *() const;
-  };
-  position at_front() const;
-  fwd_inconsistent_until_position from(position) const;
-  fwd_archetype until(position) const;
-};
-bool operator ==(fwd_inconsistent_until_position::position,
-                 fwd_inconsistent_until_position::position);
-bool operator !=(fwd_inconsistent_until_position::position,
-                 fwd_inconsistent_until_position::position);
-
-static_assert(!ForwardRange<fwd_inconsistent_until_position>(),
-              "forward concept cannot identify inconsistent position types");
+static_assert(!ForwardRange<fwd_bad_arg_set_front>(),
+              "forward concept cannot identify set_front not taking position");
 
 
 // --------------------- BidirectionalRange -----------------------------------
@@ -763,8 +636,8 @@ struct bidi_archetype {
 
   position at_front() const;
   position at_back() const;
-  bidi_archetype from(position) const;
-  bidi_archetype until(position) const;
+  void set_front(position);
+  void set_back(position);
 };
 
 static_assert(BidirectionalRange<bidi_archetype>(),
@@ -784,12 +657,13 @@ struct bidi_insufficient_traversal {
 
   position at_front() const;
   position at_back() const;
-  bidi_insufficient_traversal from(position) const;
-  bidi_insufficient_traversal until(position) const;
+  void set_front(position);
+  void set_back(position);
 };
 
 static_assert(!BidirectionalRange<bidi_insufficient_traversal>(),
-              "bidirectional range cannot identify insufficient traversal");
+              "bidirectional range concept cannot identify "
+              "insufficient traversal");
 
 struct bidi_missing_back {
   using value_type = int;
@@ -804,12 +678,12 @@ struct bidi_missing_back {
 
   position at_front() const;
   position at_back() const;
-  bidi_missing_back from(position) const;
-  bidi_missing_back until(position) const;
+  void set_front(position);
+  void set_back(position);
 };
 
 static_assert(!BidirectionalRange<bidi_missing_back>(),
-              "bidirectional range cannot identify missing back");
+              "bidirectional range concept cannot identify missing back");
 
 struct bidi_inconsistent_back {
   using value_type = int;
@@ -825,12 +699,13 @@ struct bidi_inconsistent_back {
 
   position at_front() const;
   position at_back() const;
-  bidi_inconsistent_back from(position) const;
-  bidi_inconsistent_back until(position) const;
+  void set_front(position);
+  void set_back(position);
 };
 
 static_assert(!BidirectionalRange<bidi_inconsistent_back>(),
-              "bidirectional range cannot identify back and front mismatch");
+              "bidirectional range concept cannot identify "
+              "back and front mismatch");
 
 struct bidi_nonconst_back {
   using value_type = int;
@@ -846,12 +721,12 @@ struct bidi_nonconst_back {
 
   position at_front() const;
   position at_back() const;
-  bidi_nonconst_back from(position) const;
-  bidi_nonconst_back until(position) const;
+  void set_front(position);
+  void set_back(position);
 };
 
 static_assert(!BidirectionalRange<bidi_nonconst_back>(),
-              "bidirectional range cannot identify non-const back");
+              "bidirectional range concept cannot identify non-const back");
 
 struct bidi_missing_drop_back {
   using value_type = int;
@@ -866,12 +741,12 @@ struct bidi_missing_drop_back {
 
   position at_front() const;
   position at_back() const;
-  bidi_missing_drop_back from(position) const;
-  bidi_missing_drop_back until(position) const;
+  void set_front(position);
+  void set_back(position);
 };
 
 static_assert(!BidirectionalRange<bidi_missing_drop_back>(),
-              "bidirectional range cannot identify missing drop_back");
+              "bidirectional range concept cannot identify missing drop_back");
 
 struct bidi_missing_at_back {
   using value_type = int;
@@ -886,12 +761,12 @@ struct bidi_missing_at_back {
   void drop_back();
 
   position at_front() const;
-  bidi_missing_at_back from(position) const;
-  bidi_missing_at_back until(position) const;
+  void set_front(position);
+  void set_back(position);
 };
 
 static_assert(!BidirectionalRange<bidi_missing_at_back>(),
-              "bidirectional range cannot identify missing at_back");
+              "bidirectional range concept cannot identify missing at_back");
 
 struct bidi_nonconst_at_back {
   using value_type = int;
@@ -907,12 +782,13 @@ struct bidi_nonconst_at_back {
 
   position at_front() const;
   position at_back();
-  bidi_nonconst_at_back from(position) const;
-  bidi_nonconst_at_back until(position) const;
+  void set_front(position);
+  void set_back(position);
 };
 
 static_assert(!BidirectionalRange<bidi_nonconst_at_back>(),
-              "bidirectional range cannot identify non-const drop_back");
+              "bidirectional range concept cannot identify "
+              "non-const drop_back");
 
 struct bidi_badret_at_back {
   using value_type = int;
@@ -928,14 +804,15 @@ struct bidi_badret_at_back {
 
   position at_front() const;
   int at_back() const;
-  bidi_badret_at_back from(position) const;
-  bidi_badret_at_back until(position) const;
+  void set_front(position);
+  void set_back(position);
 };
 
 static_assert(!BidirectionalRange<bidi_badret_at_back>(),
-              "bidirectional range cannot bad drop_back return type");
+              "bidirectional range concept cannot identify "
+              "bad drop_back return type");
 
-struct bidi_badret_until {
+struct bidi_missing_set_back {
   using value_type = int;
   using traversal = accent::bidirectional_traversal_tag;
   using position = pos_archetype;
@@ -949,12 +826,33 @@ struct bidi_badret_until {
 
   position at_front() const;
   position at_back() const;
-  bidi_badret_until from(position) const;
-  bidi_archetype until(position) const;
+  void set_front(position);
 };
 
-static_assert(!BidirectionalRange<bidi_badret_until>(),
-              "bidirectional range cannot identify until not returning self");
+static_assert(!BidirectionalRange<bidi_missing_set_back>(),
+              "bidirectional range concept cannot identify missing set_back");
+
+struct bidi_badarg_set_back {
+  using value_type = int;
+  using traversal = accent::bidirectional_traversal_tag;
+  using position = pos_archetype;
+
+  bool empty() const;
+  explicit operator bool() const;
+  value_type front() const;
+  value_type back() const;
+  void drop_front();
+  void drop_back();
+
+  position at_front() const;
+  position at_back() const;
+  void set_front(position);
+  void set_back(int);
+};
+
+static_assert(!BidirectionalRange<bidi_badarg_set_back>(),
+              "bidirectional range concept cannot identify "
+              "set_back not taking position");
 
 // --------------------- ReadableRange ----------------------------------------
 

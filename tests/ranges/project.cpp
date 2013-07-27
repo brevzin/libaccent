@@ -114,12 +114,12 @@ TEST(FwdProject, twoElementSource_dropFront_atFrontIsSecondElement) {
   ASSERT_EQ(2, *p);
 }
 
-TEST(FwdProject, threeElementSource_fromSecondElement_containsLastTwo) {
+TEST(FwdProject, threeElementSource_setFrontSecondElement_containsLastTwo) {
   svec v = { {1}, {2}, {3} };
   auto r = project(adapt(v).all(), grab_i());
   auto s = r;
   s.drop_front();
-  r = r.from(s.at_front());
+  r.set_front(s.at_front());
   ASSERT_FALSE(r.empty());
   ASSERT_EQ(2, r.front());
   r.drop_front();
@@ -128,7 +128,7 @@ TEST(FwdProject, threeElementSource_fromSecondElement_containsLastTwo) {
   r.drop_front();
   ASSERT_TRUE(r.empty());
 }
-
+#if 0
 TEST(FwdProject, threeElementSource_untilSecondElement_containsFirst) {
   svec v = { {1}, {2}, {3} };
   auto r = project(adapt(v).all(), grab_i());
@@ -140,3 +140,4 @@ TEST(FwdProject, threeElementSource_untilSecondElement_containsFirst) {
   r.drop_front();
   ASSERT_TRUE(r.empty());
 }
+#endif

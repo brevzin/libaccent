@@ -110,14 +110,7 @@ namespace accent { namespace ranges {
       position at_front() const {
         return { this->inner().at_front(), this->projection() };
       }
-      Derived from(position p) const {
-        return Derived(this->inner().from(p.inner()), this->projection());
-      }
-      auto until(position p) const
-          -> projected_range<decltype(this->inner().until(p.inner())),
-                             Projection> {
-        return { this->inner().until(p.inner()), this->projection() };
-      }
+      void set_front(position p) { this->inner().set_front(p.inner()); }
     };
 
     template <typename Derived, typename Inner, typename Projection>

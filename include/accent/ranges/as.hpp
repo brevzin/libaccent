@@ -50,13 +50,7 @@ namespace accent { namespace ranges {
       auto at_front() const -> decltype(inner.at_front()) {
         return inner.at_front();
       }
-      as_forward_range from(position p) const {
-        return as_forward_range(inner.from(p));
-      }
-      auto until(position p) const
-          -> as_forward_range<decltype(inner.until(p))> {
-        return as_forward_range<decltype(inner.until(p))>(inner.until(p));
-      }
+      void set_front(position p) { inner.set_front(p); }
     };
 
     template <typename Inner>
@@ -81,18 +75,14 @@ namespace accent { namespace ranges {
       auto at_front() const -> decltype(inner.at_front()) {
         return inner.at_front();
       }
-      as_bidirectional_range from(position p) const {
-        return as_bidirectional_range(inner.from(p));
-      }
-      as_bidirectional_range until(position p) const {
-        return as_bidirectional_range(inner.until(p));
-      }
+      void set_front(position p) { inner.set_front(p); }
 
       auto back() const -> decltype(inner.back()) { return inner.back(); }
       void drop_back() { inner.drop_back(); }
       auto at_back() const -> decltype(inner.at_back()) {
         return inner.at_back();
       }
+      void set_back(position p) { inner.set_back(p); }
     };
 
   }
