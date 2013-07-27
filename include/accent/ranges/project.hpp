@@ -125,6 +125,18 @@ namespace accent { namespace ranges {
       ~projected_range_impl() = default;
 
     public:
+      using position = typename base::position;
+
+      auto back() const -> decltype(this->projection()(this->inner().back())) {
+        return this->projection()(this->inner().back());
+      }
+      void drop_back() { this->inner().drop_back(); }
+      position at_back() const {
+        return { this->inner().at_back(), this->projection() };
+      }
+      void set_back(position p) { this->inner().set_back(p.inner()); }
+
+    public:
     };
 
     template <typename Derived, typename Inner, typename Projection>
