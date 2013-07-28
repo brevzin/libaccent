@@ -6,8 +6,7 @@
 namespace accent { namespace functional {
 
   template <typename Inner>
-  class not_t
-  {
+  class not_t {
     Inner inner;
 
   public:
@@ -22,8 +21,7 @@ namespace accent { namespace functional {
   };
 
   template <typename Inner>
-  not_t<Inner> not_(Inner inner)
-  {
+  not_t<Inner> not_(Inner inner) {
     return { std::move(inner) };
   }
 
