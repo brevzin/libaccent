@@ -15,7 +15,7 @@ namespace accent { namespace algorithms {
     UnaryFunctor for_each_r(ReadableSinglePassRange r, UnaryFunctor f,
                           std::true_type) {
       for (; r; r.drop_front()) {
-        f(const_cast<const ReadableSinglePassRange&>(r));
+        f(const_(r));
       }
       return f;
     }

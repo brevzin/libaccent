@@ -8,6 +8,11 @@ namespace accent { namespace support {
   template <bool V>
   using bool_ = std::integral_constant<bool, V>;
 
+  template <typename T>
+  const T& const_(const T& t) {
+    return t;
+  }
+
 }}
 
 #endif

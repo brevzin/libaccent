@@ -7,8 +7,13 @@
 namespace accent { namespace algorithms {
 
   template <typename ReadableSinglePassRange, typename Predicate>
+  bool all_of_r(ReadableSinglePassRange r, Predicate p) {
+    return none_of_r(r, functional::not_(p));
+  }
+
+  template <typename ReadableSinglePassRange, typename Predicate>
   bool all_of(ReadableSinglePassRange r, Predicate p) {
-    return none_of(r, functional::not_(p));
+    return all_of_r(r, functional::fronts(p));
   }
 
 }}
