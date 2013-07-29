@@ -22,7 +22,7 @@ LDLIBS = -lgtest_main -lgtest -lc++abi
 algo_test_suite = any_of all_of none_of copy drop_conditional find reverse \
     for_each
 
-range_test_suite = vector_range append project iostream_range
+range_test_suite = vector_range append project iostream_range take_conditional
 
 support_test_suite = concepts
 

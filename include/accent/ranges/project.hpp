@@ -166,8 +166,8 @@ namespace accent { namespace ranges {
                                               support::traversal_of<Inner>>;
 
   public:
-      projected_range(Inner inner, Projection projection)
-        : base(std::move(inner), std::move(projection)) {}
+    projected_range(Inner inner, Projection projection)
+      : base(std::move(inner), std::move(projection)) {}
   };
 
   template <typename Inner, typename RegularUnaryFunction>
