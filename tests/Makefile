@@ -13,14 +13,14 @@ boostdir = /Users/wasti/Documents/boost
 # Clang settings
 CC = /usr/local/bin/clang++
 CXX = /usr/local/bin/clang++
-CXXFLAGS = -std=c++11 -I../include -I. -I$(gtestdir)/include \
+CXXFLAGS = -std=c++1y -I../include -I. -I$(gtestdir)/include \
   -I$(boostdir) -stdlib=libc++ -U__STRICT_ANSI__ -DGTEST_USE_OWN_TR1_TUPLE \
   -g -O0 -Werror
 LDFLAGS = -stdlib=libc++ -g -O0 -L$(gtestdir)/libclang
 LDLIBS = -lgtest_main -lgtest -lc++abi
 
 algo_test_suite = any_of all_of none_of copy drop_conditional find reverse \
-    for_each
+    for_each equal
 
 range_test_suite = vector_range append project iostream_range take_conditional
 
