@@ -1,4 +1,5 @@
 Range: allows access to some sequence of elements
+  All operations are O(1) unless specified otherwise.
   SinglePassRange:
     typename value_type
     typename traversal
@@ -54,11 +55,14 @@ Range: allows access to some sequence of elements
     void set_back(position p)
       Precondition: !singular && p is within range
       Effects: while (p != r.at_back()) r.drop_back(); with O(1) complexity
-  RandomAccessRange: refines BidirectionalRange
-    Restrictions: traversal must be random_access_traversal_tag or a derived type
-    size_t size() const
+  CountedRange: refines ForwardRange
+    typename counted
+      Marker type for CountedRange, need not be complete
+    size_t count() const
       Precondition: !singular
       Returns: the number of times drop_front() can be called before empty() returns true
+  RandomAccessRange: refines BidirectionalRange and CountedRange
+    Restrictions: traversal must be random_access_traversal_tag or a derived type
     void skip_front(size_t n)
       Precondition: !singular && size() >= n
       Effects: n calls to drop_front(), but with O(1) complexity
