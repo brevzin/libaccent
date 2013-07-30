@@ -1,12 +1,8 @@
 #ifndef LIBACCENT_RANGES_TAKE_CONDITIONAL_HPP
 #define LIBACCENT_RANGES_TAKE_CONDITIONAL_HPP
 
-#include "accent/tags.hpp"
-#include "accent/functional/fronts.hpp"
 #include "accent/functional/not.hpp"
-#include "accent/support/concepts.hpp"
-#include "accent/support/range_base.hpp"
-#include "accent/support/tag_functions.hpp"
+#include "accent/support/range.hpp"
 #include <boost/compressed_pair.hpp>
 #include <cassert>
 
@@ -81,8 +77,7 @@ namespace accent { namespace ranges {
           take_until_r_range<Inner, UnaryPredicate>,
           Inner, UnaryPredicate,
           support::minimum_tag<support::traversal_of<Inner>,
-                               forward_traversal_tag>>
-  {
+                               forward_traversal_tag>> {
   public:
     using traversal = support::minimum_tag<support::traversal_of<Inner>,
                                            forward_traversal_tag>;
