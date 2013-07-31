@@ -18,8 +18,11 @@ namespace accent { namespace ranges {
       Inner inner;
 
       explicit reversed_range_impl(Inner inner) : inner(std::move(inner)) {}
+      ~reversed_range_impl() = default;
 
     public:
+      using value_type = support::value_type_of<Inner>;
+
       bool empty() const { return inner.empty(); }
 
       auto front() const -> decltype(inner.back()) { return inner.back(); }

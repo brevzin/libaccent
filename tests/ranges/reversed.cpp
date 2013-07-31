@@ -1,6 +1,9 @@
 #include <accent/ranges/reversed.hpp>
 #include "test.hpp"
 
+static_assert(BidirectionalRange<decltype(reversed(vec{}.bidi()))>(),
+              "reversed bidirectional range is not bidirectional range");
+
 TEST(Reversed, SourceEmpty_TargetEmpty) {
   vec v = {};
   auto r = reversed(v.bidi());
