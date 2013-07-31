@@ -127,6 +127,9 @@ namespace accent { namespace ranges {
             support::minimum_tag<support::traversal_of<Inner>,
                                  bidirectional_traversal_tag>> {
   public:
+    static_assert(support::SinglePassRange<Inner>(),
+                  "filter requires a single pass range");
+
     using traversal = support::minimum_tag<support::traversal_of<Inner>,
                                            bidirectional_traversal_tag>;
 
@@ -148,6 +151,8 @@ namespace accent { namespace ranges {
   template <typename ReadableSinglePassRange, typename UnaryPredicate>
   auto filter(ReadableSinglePassRange r, UnaryPredicate p)
       -> decltype(filter_r(r, functional::fronts(p))) {
+    static_assert(support::ReadableRange<ReadableSinglePassRange>(),
+                  "filter requires a readable range");
     return filter_r(r, functional::fronts(p));
   }
 
