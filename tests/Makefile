@@ -25,7 +25,7 @@ algo_test_suite = any_of all_of none_of copy drop_conditional find reverse \
 range_test_suite = vector_range append project iostream_range take_conditional \
     filter reversed
 
-support_test_suite = concepts
+support_test_suite = concepts tag_functions
 
 test_suites = $(addprefix support/, $(support_test_suite)) \
               $(addprefix ranges/, $(range_test_suite)) \
