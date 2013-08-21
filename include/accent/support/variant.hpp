@@ -256,11 +256,11 @@ namespace accent { namespace support {
     }
 
     template <typename Operation>
-    auto apply(Operation op) {
+    decltype(auto) apply(Operation op) {
       return dispatch(*this, op, which());
     }
     template <typename Operation>
-    auto apply(Operation op) const {
+    decltype(auto) apply(Operation op) const {
       return dispatch(*this, op, which());
     }
 
@@ -274,6 +274,23 @@ namespace accent { namespace support {
       tag = detail::index<default_type, Types...>();
     }
   };
+
+  template <std::size_t I, typename... Types>
+  auto get(variant<Types...>& v) -> decltype(v.template get<I>()) {
+    return v.template get<I>();
+  }
+  template <std::size_t I, typename... Types>
+  auto get(const variant<Types...>& v) -> decltype(v.template get<I>()) {
+    return v.template get<I>();
+  }
+  template <typename T, typename... Types>
+  auto get(variant<Types...>& v) -> decltype(v.template get<T>()) {
+    return v.template get<T>();
+  }
+  template <typename T, typename... Types>
+  auto get(const variant<Types...>& v) -> decltype(v.template get<T>()) {
+    return v.template get<T>();
+  }
 
 }}
 

@@ -41,7 +41,6 @@ Range: allows access to some sequence of elements
       Effects: while (p != r.at_front()) r.drop_front(); with O(1) complexity
   BidirectionalRange: refines ForwardRange
     Restrictions: traversal must be bidirectional_traversal_tag or a derived type
-                  until()'s return type is self
     E back() const
       Precondition: !singular && !empty()
       Returns: the last element of the range

@@ -5,6 +5,7 @@
 // heterogeneous container by a runtime index.
 
 #include <cassert>
+#include <cstddef>
 #include <type_traits>
 #include <utility>
 
@@ -12,17 +13,24 @@ namespace accent { namespace support {
 
   namespace detail {
 
+    // To start ADL, here's a bogus overload.
+    struct bogus {};
+    template <std::size_t> void get(bogus);
+
+    template <std::size_t I, typename T>
+    auto adl_get(T& t) -> decltype(get<I>(t));
+
     template <typename Indices, typename Container, typename Operation>
     struct dispatch_table;
 
     template <std::size_t... Indices, typename Container, typename Operation>
     struct dispatch_table<std::index_sequence<Indices...>, Container, Operation> {
       using result = decltype(std::declval<Operation>()(
-          std::declval<Container&>().template get<0>()));
+          get<0>(std::declval<Container&>())));
 
       template <std::size_t I>
       static result call(Operation op, Container& v) {
-        return op(v.template get<I>());
+        return op(get<I>(v));
       }
 
       using pointer = result (*)(Operation op, Container&);
@@ -50,7 +58,7 @@ namespace accent { namespace support {
 
   template <typename Container, typename Operation>
   auto dispatch(Container& c, Operation op, int index)
-      -> decltype(op(c.template get<0>())) {
+      -> decltype(op(detail::adl_get<0>(c))) {
     using table = detail::dispatch_table<
         typename detail::index_sequence_for_container<
             typename std::remove_const<Container>::type>::type,
