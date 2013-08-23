@@ -13,21 +13,18 @@ namespace accent { namespace support {
     struct minimum_tag_impl;
 
     template <typename A>
-    struct minimum_tag_impl<A>
-    {
+    struct minimum_tag_impl<A> {
       using type = A;
     };
 
     template <typename A, typename B>
-    struct minimum_tag_impl<A, B>
-    {
+    struct minimum_tag_impl<A, B> {
       using type = typename std::conditional<std::is_base_of<A, B>::value,
                                              A, B>::type;
     };
 
     template <typename A, typename B, typename... Bs>
-    struct minimum_tag_impl<A, B, Bs...>
-    {
+    struct minimum_tag_impl<A, B, Bs...> {
       using type = typename minimum_tag_impl<
                               typename minimum_tag_impl<A, B>::type,
                               Bs...>::type;

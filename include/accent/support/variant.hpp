@@ -43,7 +43,6 @@ namespace accent { namespace support {
     };
 
     template <std::size_t... Values> struct max;
-
     template <> struct max<> { constexpr operator int() const { return 0; } };
     template <std::size_t V, std::size_t... Rem>
     struct max<V, Rem...> {
@@ -55,7 +54,9 @@ namespace accent { namespace support {
 
     template <int I, typename Needle, typename... Haystack> struct index_impl;
     template <int I, typename Needle>
-    struct index_impl<I, Needle> {};
+    struct index_impl<I, Needle> {
+      constexpr operator int() const { return -1; }
+    };
     template <int I, typename Needle, typename... Dull>
     struct index_impl<I, Needle, Needle, Dull...> {
       constexpr operator int() const { return I; }
@@ -110,13 +111,6 @@ namespace accent { namespace support {
       }
     };
 
-    struct destruct_op {
-      template <typename T>
-      void operator ()(T& t) const {
-        t.~T();
-      }
-    };
-
     template <typename Variant>
     class move_assign_op {
       Variant& source;
@@ -135,6 +129,13 @@ namespace accent { namespace support {
       return move_assign_op<Variant>{std::move(source)};
     }
 
+    struct destruct_op {
+      template <typename T>
+      void operator ()(T& t) const {
+        t.~T();
+      }
+    };
+
   }
 
   template <typename... Types>
@@ -142,19 +143,23 @@ namespace accent { namespace support {
     // If this line fails to compile, you did not supply at least one nothrow-
     // constructible type.
     using default_type = detail::first<detail::is_default_type, Types...>;
-    using tuple = std::tuple<Types...>;
     using storage_t = typename std::aligned_union<
                           (detail::max<sizeof(Types)...>()), Types...>::type;
     storage_t storage;
     int tag;
 
+    template <std::size_t I>
+    using nth_type = typename std::tuple_element<I, std::tuple<Types...>>::type;
+
+    template <typename T>
+    static constexpr int index() { return detail::index<T, Types...>(); }
+
   public:
     variant() noexcept : variant(default_type{}) {}
 
     template <typename T,
-              typename = typename std::enable_if<
-                             detail::index<T, Types...>() != -1>::type>
-    variant(T t) : tag(detail::index<T, Types...>()) {
+              typename = typename std::enable_if<index<T>() != -1>::type>
+    variant(T t) : tag(index<T>()) {
       new (&storage) T(std::move(t));
     }
 
@@ -165,13 +170,12 @@ namespace accent { namespace support {
 
     // Exceptions: weak
     template <typename T,
-              typename = typename std::enable_if<
-                             detail::index<T, Types...>() != -1>::type>
+              typename = typename std::enable_if<index<T>() != -1>::type>
     variant& operator =(T t) {
       destroy();
       try {
         new (&storage) T(std::move(t));
-        tag = detail::index<T, Types...>();
+        tag = index<T>();
       } catch (...) {
         revert();
         throw;
@@ -228,30 +232,26 @@ namespace accent { namespace support {
     }
 
     template <std::size_t I>
-    auto get() -> typename std::tuple_element<I, tuple>::type& {
+    decltype(auto) get() {
       assert(which() == I && "wrong active member");
-      return reinterpret_cast<
-          typename std::tuple_element<I, tuple>::type&>(storage);
+      return reinterpret_cast<nth_type<I>&>(storage);
     }
 
     template <std::size_t I>
-    auto get() const -> const typename std::tuple_element<I, tuple>::type& {
+    decltype(auto) get() const {
       assert(which() == I && "wrong active member");
-      return reinterpret_cast<
-          const typename std::tuple_element<I, tuple>::type&>(storage);
+      return reinterpret_cast<const nth_type<I>&>(storage);
     }
 
     template <typename T>
     T& get() {
-      assert((which() == detail::index<T, Types...>()) &&
-             "wrong active member");
+      assert((which() == index<T>()) && "wrong active member");
       return reinterpret_cast<T&>(storage);
     }
 
     template <typename T>
     const T& get() const {
-      assert((which() == detail::index<T, Types...>()) &&
-             "wrong active member");
+      assert((which() == index<T>()) && "wrong active member");
       return reinterpret_cast<const T&>(storage);
     }
 
@@ -276,19 +276,19 @@ namespace accent { namespace support {
   };
 
   template <std::size_t I, typename... Types>
-  auto get(variant<Types...>& v) -> decltype(v.template get<I>()) {
+  decltype(auto) get(variant<Types...>& v) {
     return v.template get<I>();
   }
   template <std::size_t I, typename... Types>
-  auto get(const variant<Types...>& v) -> decltype(v.template get<I>()) {
+  decltype(auto) get(const variant<Types...>& v) {
     return v.template get<I>();
   }
   template <typename T, typename... Types>
-  auto get(variant<Types...>& v) -> decltype(v.template get<T>()) {
+  decltype(auto) get(variant<Types...>& v) {
     return v.template get<T>();
   }
   template <typename T, typename... Types>
-  auto get(const variant<Types...>& v) -> decltype(v.template get<T>()) {
+  decltype(auto) get(const variant<Types...>& v) {
     return v.template get<T>();
   }
 

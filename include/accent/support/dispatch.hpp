@@ -17,9 +17,6 @@ namespace accent { namespace support {
     struct bogus {};
     template <std::size_t> void get(bogus);
 
-    template <std::size_t I, typename T>
-    auto adl_get(T& t) -> decltype(get<I>(t));
-
     template <typename Indices, typename Container, typename Operation>
     struct dispatch_table;
 
@@ -57,8 +54,7 @@ namespace accent { namespace support {
   }
 
   template <typename Container, typename Operation>
-  auto dispatch(Container& c, Operation op, int index)
-      -> decltype(op(detail::adl_get<0>(c))) {
+  decltype(auto) dispatch(Container& c, Operation op, int index) {
     using table = detail::dispatch_table<
         typename detail::index_sequence_for_container<
             typename std::remove_const<Container>::type>::type,

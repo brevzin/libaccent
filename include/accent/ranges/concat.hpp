@@ -24,9 +24,7 @@ namespace accent { namespace ranges {
     };
     struct front_op {
       template <typename Range>
-      auto operator ()(const Range& r) const -> decltype(r.front()) {
-        return r.front();
-      }
+      decltype(auto) operator ()(const Range& r) const { return r.front(); }
     };
     struct drop_front_op {
       template <typename Range>
@@ -38,8 +36,8 @@ namespace accent { namespace ranges {
         : public support::range_base<Derived> {
     protected:
       using tuple = std::tuple<Inners...>;
-      using value_ref = decltype(std::declval<support::head<Inners...>>()
-                                     .front());
+      using first = support::head<Inners...>;
+      using value_ref = decltype(std::declval<first>().front());
 
       tuple inners;
       int current = 0;
@@ -59,7 +57,7 @@ namespace accent { namespace ranges {
       }
 
     public:
-      using value_type = typename support::head<Inners...>::value_type;
+      using value_type = typename first::value_type;
       static_assert(support::all<std::is_same<value_type,
                                               typename Inners::value_type
                                              >::value...>::value,
@@ -129,13 +127,12 @@ namespace accent { namespace ranges {
       return equal_op<Position>{p};
     }
 
-    template <typename... Ranges>
+    template <typename... Positions>
     class concat_position {
-      using value_ref = decltype(*std::declval<
-                            typename support::head<Ranges...>::position>());
+      using first = support::head<Positions...>;
+      using value_ref = decltype(*std::declval<first>());
       using invalid = invalid_position<value_ref>;
-      using variant = support::variant<typename Ranges::position...,
-                                       invalid>;
+      using variant = support::variant<Positions..., invalid>;
       variant data;
 
     public:
@@ -156,18 +153,18 @@ namespace accent { namespace ranges {
       value_ref operator *() const { return apply(deref_op{}); }
     };
 
-    template <typename... Ranges>
-    bool operator ==(const concat_position<Ranges...>& l,
-                     const concat_position<Ranges...>& r) {
+    template <typename... Positions>
+    bool operator ==(const concat_position<Positions...>& l,
+                     const concat_position<Positions...>& r) {
       if (l.which() != r.which()) {
         return false;
       }
       return l.apply(make_equal_op(r));
     }
 
-    template <typename... Ranges>
-    bool operator !=(const concat_position<Ranges...>& l,
-                     const concat_position<Ranges...>& r) {
+    template <typename... Positions>
+    bool operator !=(const concat_position<Positions...>& l,
+                     const concat_position<Positions...>& r) {
       return !(l == r);
     }
 
@@ -210,7 +207,7 @@ namespace accent { namespace ranges {
       ~concat_range_impl() = default;
 
     public:
-      using position = concat_position<Inners...>;
+      using position = concat_position<typename Inners::position...>;
 
       position at_front() const {
         return this->empty() ? position()
@@ -236,7 +233,7 @@ namespace accent { namespace ranges {
   public:
     using traversal = support::minimum_tag<support::traversal_of<Inners>...>;
 
-    concat_range(Inners... inners) : base(inners...) {}
+    explicit concat_range(Inners... inners) : base(inners...) {}
 
   private:
     using base = detail::concat_range_impl<concat_range, traversal, Inners...>;

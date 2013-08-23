@@ -10,19 +10,17 @@ namespace accent { namespace functional {
     Inner inner;
 
   public:
-    not_t(Inner inner) : inner(std::move(inner)) {}
+    explicit not_t(Inner inner) : inner(std::move(inner)) {}
 
     template <typename... Args>
-    auto operator ()(Args&&... args) const
-      -> decltype(!inner(std::forward<Args>(args)...))
-    {
+    decltype(auto) operator ()(Args&&... args) const {
       return !inner(std::forward<Args>(args)...);
     }
   };
 
   template <typename Inner>
   not_t<Inner> not_(Inner inner) {
-    return { std::move(inner) };
+    return not_t<Inner>{ std::move(inner) };
   }
 
 }}

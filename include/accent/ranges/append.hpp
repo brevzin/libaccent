@@ -15,7 +15,7 @@ namespace accent { namespace ranges {
     using value_type = typename C::value_type;
     using traversal = single_pass_traversal_tag;
 
-    appender(C& c) : c(&c) {}
+    explicit appender(C& c) : c(&c) {}
 
     bool empty() const { return c->size() == c->max_size(); }
     appender front() const { return *this; }

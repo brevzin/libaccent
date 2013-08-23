@@ -1,8 +1,7 @@
 #ifndef LIBACCENT_RANGES_ITERATOR_RANGE_HPP
 #define LIBACCENT_RANGES_ITERATOR_RANGE_HPP
 
-#include "accent/tags.hpp"
-#include "accent/support/range_base.hpp"
+#include "accent/support/range.hpp"
 #include <cassert>
 #include <iterator>
 

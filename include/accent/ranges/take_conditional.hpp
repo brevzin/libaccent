@@ -1,6 +1,7 @@
 #ifndef LIBACCENT_RANGES_TAKE_CONDITIONAL_HPP
 #define LIBACCENT_RANGES_TAKE_CONDITIONAL_HPP
 
+#include "accent/functional/fronts.hpp"
 #include "accent/functional/not.hpp"
 #include "accent/support/range.hpp"
 #include <boost/compressed_pair.hpp>
@@ -37,9 +38,7 @@ namespace accent { namespace ranges {
         return inner().empty() || predicate()(inner());
       }
 
-      auto front() const -> decltype(inner().front()) {
-        return inner().front();
-      }
+      decltype(auto) front() const { return inner().front(); }
 
       void drop_front() {
         assert(!empty());

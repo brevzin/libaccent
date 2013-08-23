@@ -10,19 +10,15 @@ namespace accent { namespace functional {
     Inner inner;
 
   public:
-    fronts_t(Inner inner) : inner(std::move(inner)) {}
+    explicit fronts_t(Inner inner) : inner(std::move(inner)) {}
 
     template <typename... Args>
-    auto operator ()(const Args&... args) const
-      -> decltype(inner(args.front()...))
-    {
+    decltype(auto) operator ()(const Args&... args) const {
       return inner(args.front()...);
     }
 
     template <typename... Args>
-    auto operator ()(const Args&... args)
-      -> decltype(inner(args.front()...))
-    {
+    decltype(auto) operator ()(const Args&... args) {
       return inner(args.front()...);
     }
 
@@ -31,7 +27,7 @@ namespace accent { namespace functional {
 
   template <typename Inner>
   fronts_t<Inner> fronts(Inner inner) {
-    return { std::move(inner) };
+    return fronts_t<Inner>{ std::move(inner) };
   }
 
 }}

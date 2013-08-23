@@ -1,6 +1,7 @@
 #ifndef LIBACCENT_RANGES_FILTER_HPP
 #define LIBACCENT_RANGES_FILTER_HPP
 
+#include "accent/functional/fronts.hpp"
 #include "accent/ranges/reversed.hpp"
 #include "accent/support/range.hpp"
 #include <boost/compressed_pair.hpp>
@@ -71,9 +72,7 @@ namespace accent { namespace ranges {
     public:
       using position = support::position_of<Inner>;
 
-      position at_front() const {
-        return this->inner().at_front();
-      }
+      position at_front() const { return this->inner().at_front(); }
 
       void set_front(position p) { this->inner().set_front(p); }
     };

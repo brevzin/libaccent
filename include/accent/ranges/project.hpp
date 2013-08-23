@@ -1,10 +1,7 @@
 #ifndef LIBACCENT_RANGES_PROJECT_HPP
 #define LIBACCENT_RANGES_PROJECT_HPP
 
-#include "accent/tags.hpp"
-#include "accent/support/concepts.hpp"
-#include "accent/support/range_base.hpp"
-#include "accent/support/tag_functions.hpp"
+#include "accent/support/range.hpp"
 #include <boost/compressed_pair.hpp>
 #include <boost/optional.hpp>
 #include <type_traits>
@@ -38,9 +35,7 @@ namespace accent { namespace ranges {
     bool valid() const { return inner().valid(); }
     explicit operator bool() const { return valid(); }
 
-    auto operator *() const -> decltype((*projection)(*inner())) {
-      return (*projection)(*inner());
-    }
+    decltype(auto) operator *() const { return (*projection)(*inner()); }
   };
   template <typename Inner, typename Projection>
   bool operator ==(const projected_position<Inner, Projection>& l,
@@ -87,9 +82,7 @@ namespace accent { namespace ranges {
 
       void drop_front() { inner().drop_front(); }
 
-      auto front() const -> decltype(projection()(inner().front())) {
-        return projection()(inner().front());
-      }
+      decltype(auto) front() const { return projection()(inner().front()); }
     };
 
     template <typename Derived, typename Inner, typename Projection>
@@ -127,7 +120,7 @@ namespace accent { namespace ranges {
     public:
       using position = typename base::position;
 
-      auto back() const -> decltype(this->projection()(this->inner().back())) {
+      decltype(auto) back() const {
         return this->projection()(this->inner().back());
       }
       void drop_back() { this->inner().drop_back(); }
@@ -135,8 +128,6 @@ namespace accent { namespace ranges {
         return { this->inner().at_back(), this->projection() };
       }
       void set_back(position p) { this->inner().set_back(p.inner()); }
-
-    public:
     };
 
     template <typename Derived, typename Inner, typename Projection>
@@ -149,8 +140,6 @@ namespace accent { namespace ranges {
     protected:
       using base::base;
       ~projected_range_impl() = default;
-
-    public:
     };
 
   }

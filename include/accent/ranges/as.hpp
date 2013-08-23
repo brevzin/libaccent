@@ -47,9 +47,7 @@ namespace accent { namespace ranges {
       void drop_front() { inner.drop_front(); }
       auto front() const -> decltype(inner.front()) { return inner.front(); }
 
-      auto at_front() const -> decltype(inner.at_front()) {
-        return inner.at_front();
-      }
+      position at_front() const { return inner.at_front(); }
       void set_front(position p) { inner.set_front(p); }
     };
 
@@ -72,16 +70,12 @@ namespace accent { namespace ranges {
       void drop_front() { inner.drop_front(); }
       auto front() const -> decltype(inner.front()) { return inner.front(); }
 
-      auto at_front() const -> decltype(inner.at_front()) {
-        return inner.at_front();
-      }
+      position at_front() const { return inner.at_front(); }
       void set_front(position p) { inner.set_front(p); }
 
       auto back() const -> decltype(inner.back()) { return inner.back(); }
       void drop_back() { inner.drop_back(); }
-      auto at_back() const -> decltype(inner.at_back()) {
-        return inner.at_back();
-      }
+      position at_back() const { return inner.at_back(); }
       void set_back(position p) { inner.set_back(p); }
     };
 
