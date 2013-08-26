@@ -136,6 +136,13 @@ namespace accent { namespace support {
       }
     };
 
+    template <typename U>
+    struct is_type_op {
+      bool operator ()(const U&) const { return true; }
+      template <typename T>
+      bool operator ()(const T&) const { return false; }
+    };
+
   }
 
   template <typename... Types>
@@ -160,6 +167,12 @@ namespace accent { namespace support {
     template <typename T,
               typename = typename std::enable_if<index<T>() != -1>::type>
     variant(T t) : tag(index<T>()) {
+      new (&storage) T(std::move(t));
+    }
+
+    template <typename T>
+    variant(T t, int index) : tag(index) {
+      assert(apply(detail::is_type_op<T>()) && "index doesn't match type");
       new (&storage) T(std::move(t));
     }
 
@@ -245,13 +258,13 @@ namespace accent { namespace support {
 
     template <typename T>
     T& get() {
-      assert((which() == index<T>()) && "wrong active member");
+      assert(apply(detail::is_type_op<T>()) && "wrong active member");
       return reinterpret_cast<T&>(storage);
     }
 
     template <typename T>
     const T& get() const {
-      assert((which() == index<T>()) && "wrong active member");
+      assert(apply(detail::is_type_op<T>()) && "wrong active member");
       return reinterpret_cast<const T&>(storage);
     }
 

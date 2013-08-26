@@ -34,6 +34,8 @@ namespace accent { namespace ranges {
     template <typename Derived, typename... Inners>
     class concat_range_impl<Derived, single_pass_traversal_tag, Inners...>
         : public support::range_base<Derived> {
+      int last_index() const { return sizeof...(Inners) - 1; }
+
     protected:
       using tuple = std::tuple<Inners...>;
       using first = support::head<Inners...>;
@@ -64,7 +66,7 @@ namespace accent { namespace ranges {
                     "all concatenated ranges must have the same value type");
 
       bool empty() const {
-        return current >= sizeof...(Inners);
+        return current > this->self().last_index();
       }
 
       value_ref front() const {
@@ -140,7 +142,7 @@ namespace accent { namespace ranges {
 
       concat_position() noexcept : data(invalid{}) {}
       template <typename T>
-      explicit concat_position(T t) : data(t) {}
+      explicit concat_position(T t, int index) : data(t, index) {}
 
       template <typename Position>
       Position get() const { return data.template get<Position>(); }
@@ -169,10 +171,15 @@ namespace accent { namespace ranges {
     }
 
     template <typename Position>
-    struct at_front_op {
+    class at_front_op {
+      int current;
+
+    public:
+      explicit at_front_op(int current) : current(current) {}
+
       template <typename Range>
       Position operator ()(const Range& r) const {
-        return Position{r.at_front()};
+        return Position{r.at_front(), current};
       }
     };
 
@@ -200,9 +207,8 @@ namespace accent { namespace ranges {
                                    Inners...> {
       using base = concat_range_impl<Derived, single_pass_traversal_tag,
                                      Inners...>;
-    protected:
-      using tuple = typename base::tuple;
 
+    protected:
       concat_range_impl(Inners... inners) : base(inners...) {}
       ~concat_range_impl() = default;
 
@@ -210,14 +216,122 @@ namespace accent { namespace ranges {
       using position = concat_position<typename Inners::position...>;
 
       position at_front() const {
-        return this->empty() ? position()
-                             : this->apply(at_front_op<position>{});
+        return this->empty() ?
+            position() : this->apply(at_front_op<position>{this->current});
       }
 
       void set_front(position p) {
         this->current = p.which();
         if (!this->empty()) {
           this->apply(make_set_front_op(p));
+        }
+      }
+    };
+
+    struct back_op {
+      template <typename Range>
+      decltype(auto) operator ()(const Range& r) const { return r.back(); }
+    };
+
+    struct drop_back_op {
+      template <typename Range>
+      void operator ()(Range& r) const { r.drop_back(); }
+    };
+
+    template <typename Position>
+    class at_back_op {
+      int current;
+
+    public:
+      explicit at_back_op(int current) : current(current) {}
+
+      template <typename Range>
+      Position operator ()(const Range& r) const {
+        return Position{r.at_back(), current};
+      }
+    };
+
+    template <typename Position>
+    class set_back_op {
+      Position p;
+
+    public:
+      explicit set_back_op(Position p) : p(p) {}
+
+      template <typename Range>
+      void operator ()(Range& r) const {
+        r.set_back(p.template get<typename Range::position>());
+      }
+    };
+
+    template <typename Position>
+    set_back_op<Position> make_set_back_op(Position p) {
+      return set_back_op<Position>(p);
+    }
+
+    template <typename Derived, typename... Inners>
+    class concat_range_impl<Derived, bidirectional_traversal_tag, Inners...>
+        : public concat_range_impl<Derived, forward_traversal_tag, Inners...> {
+      using base = concat_range_impl<Derived, forward_traversal_tag, Inners...>;
+
+      friend class concat_range_impl<Derived, single_pass_traversal_tag,
+                                     Inners...>;
+      int last_index() const { return current_back; }
+
+    protected:
+      int current_back = sizeof...(Inners) - 1;
+
+      concat_range_impl(Inners... inners)
+          : base(inners...) {
+        skip_empty_back();
+      }
+      ~concat_range_impl() = default;
+
+      template <typename Operation>
+      decltype(auto) apply_back(Operation op) {
+        assert(!this->empty() && "operation on empty range");
+        return support::dispatch(this->inners, op, current_back);
+      }
+      template <typename Operation>
+      decltype(auto) apply_back(Operation op) const {
+        assert(!this->empty() && "operation on empty range");
+        return support::dispatch(this->inners, op, current_back);
+      }
+
+      using value_ref = typename base::value_ref;
+
+    public:
+      using position = typename base::position;
+
+      value_ref back() const {
+        return apply_back(back_op{});
+      }
+
+      void drop_back() {
+        apply_back(drop_back_op{});
+        skip_empty_back();
+      }
+
+
+      position at_back() const {
+        return this->empty() ?
+            position() : this->apply_back(at_back_op<position>{current_back});
+      }
+
+      void set_back(position p) {
+        current_back = p.which();
+        if (current_back == sizeof...(Inners)) {
+          current_back = -1;
+        }
+        if (!this->empty()) {
+          this->apply_back(make_set_back_op(p));
+        }
+      }
+
+    private:
+      void skip_empty_back() {
+        while (!this->empty() && apply_back(empty_op{})){
+          --current_back;
         }
       }
     };

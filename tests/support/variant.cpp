@@ -277,3 +277,13 @@ TEST(Variant, LargeVariant) {
   v = 3.14;
   ASSERT_EQ(12, v.which());
 }
+
+TEST(Variant, ExplicitIndex) {
+  variant<int, int> v1(42, 0);
+  ASSERT_EQ(0, v1.which());
+  ASSERT_EQ(42, v1.get<0>());
+
+  variant<int, int> v2(42, 1);
+  ASSERT_EQ(1, v2.which());
+  ASSERT_EQ(42, v2.get<1>());
+}
