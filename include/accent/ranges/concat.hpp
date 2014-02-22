@@ -221,6 +221,8 @@ namespace accent { namespace ranges {
       }
 
       void set_front(position p) {
+        assert(this->current <= p.which() &&
+               "Trying to expand range with set_front.");
         this->current = p.which();
         if (!this->empty()) {
           this->apply(make_set_front_op(p));
@@ -319,6 +321,8 @@ namespace accent { namespace ranges {
       }
 
       void set_back(position p) {
+        assert((p.which() == sizeof...(Inners) || p.which() <= current_back) &&
+               "Trying to expand range with set_back.");
         current_back = p.which();
         if (current_back == sizeof...(Inners)) {
           current_back = -1;
