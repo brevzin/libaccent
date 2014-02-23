@@ -30,6 +30,12 @@ namespace accent { namespace functional {
     return r;
   }
 
+  template <typename BidirectionalRange>
+  BidirectionalRange until_before(BidirectionalRange r,
+                                  typename BidirectionalRange::position p) {
+    return init(until(r, p));
+  }
+
   template <typename ForwardRange>
   class at_position {
     typename ForwardRange::position p;

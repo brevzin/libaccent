@@ -1,6 +1,7 @@
 #ifndef LIBACCENT_ALGORITHMS_ROTATE_HPP
 #define LIBACCENT_ALGORITHMS_ROTATE_HPP
 
+#include "accent/algorithms/reverse.hpp"
 #include "accent/functional/operations.hpp"
 #include "accent/support/algorithm.hpp"
 
@@ -28,7 +29,7 @@ namespace accent { namespace algorithms {
     typename Range::position rotate_fwd(Range r,
                                         typename Range::position new_first) {
       assert(!r.empty() && "Can't call rotate_fwd on empty range.");
-      if (r.at_front() == new_first) return new_first;
+      assert(r.at_front() != new_first && "Can't call rotate_fwd for no-op.");
       bool has_result = false;
       typename Range::position result;
       for (;;) {
@@ -63,6 +64,20 @@ namespace accent { namespace algorithms {
       return rotate_fwd(r, new_first);
     }
 
+    template <typename RearrangeableBidirectionalRange>
+    typename RearrangeableBidirectionalRange::position
+    rotate(RearrangeableBidirectionalRange r,
+           typename RearrangeableBidirectionalRange::position new_first,
+           bidirectional_traversal_tag, std::true_type) {
+      assert(!r.empty() && "Can't call rotate_bidi on empty range.");
+      assert(r.at_front() != new_first && "Can't call rotate_bidi for no-op.");
+      auto result = algorithms::reverse_with_position(
+          functional::until_before(r, new_first), r.at_front());
+      algorithms::reverse(functional::from(r, new_first));
+      result = algorithms::reverse_with_position(r, result);
+      return result;
+    }
+
   }
 
   template <typename RearrangeableForwardRange>
@@ -74,6 +89,7 @@ namespace accent { namespace algorithms {
     static_assert(support::RearrangeableRange<RearrangeableForwardRange>(),
                   "rotate requires a rearrangeable range");
     if (r.empty()) return new_first;
+    if (r.at_front() == new_first) return new_first;
     return detail::rotate(r, new_first,
                           support::traversal_of<RearrangeableForwardRange>(),
                           support::bool_<
