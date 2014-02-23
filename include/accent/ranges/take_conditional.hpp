@@ -34,6 +34,8 @@ namespace accent { namespace ranges {
     public:
       using value_type = typename Inner::value_type;
 
+      Inner wrapped() const { return inner(); }
+
       bool empty() const {
         return inner().empty() || predicate()(inner());
       }

@@ -1,6 +1,6 @@
 
 algo_test_suite = any_of all_of none_of copy drop_conditional find reverse \
-    for_each equal
+    for_each equal rotate
 
 range_test_suite = vector_range append project iostream_range take_conditional \
     filter reversed concat

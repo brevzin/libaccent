@@ -35,15 +35,15 @@ namespace accent { namespace functional {
     typename ForwardRange::position p;
 
   public:
-    explicit at_position(ForwardRange::position p) : p(p) {}
+    explicit at_position(typename ForwardRange::position p) : p(p) {}
 
     bool operator ()(const ForwardRange& r) const { return r.at_front() == p; }
   };
 
   template <typename ForwardRange>
-  ranges::take_until_r_range<ForwardRange, at_position>
+  ranges::take_until_r_range<ForwardRange, at_position<ForwardRange>>
   take_until_position(ForwardRange r, typename ForwardRange::position p) {
-    return ranges::take_until_r(r, at_position(p));
+    return ranges::take_until_r(r, at_position<ForwardRange>(p));
   }
 
 }}
