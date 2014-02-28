@@ -33,3 +33,30 @@ INSTANTIATE_TEST_CASE_P(variousVectors, ZipShortestRead,
     zsr_spec{vec{1}, vec{-1, -2}, zsr_result{{1, -1}}},
     zsr_spec{vec{1, 2}, vec{-1, -2}, zsr_result{{1, -1}, {2, -2}}}
   ));
+
+using zsw_source = std::vector<std::tuple<int, int>>;
+using zsw_spec = std::tuple<vec, vec, zsw_source, vec, vec>;
+
+class ZipShortestWrite : public ::testing::TestWithParam<zsw_spec> {};
+
+TEST_P(ZipShortestWrite, def) {
+  auto p = GetParam();
+  auto v1 = std::get<0>(p);
+  auto v2 = std::get<1>(p);
+  auto vp = std::get<2>(p);
+  copy(adapt(vp).all(), zip_shortest(v1.sp(), v2.sp()));
+  ASSERT_EQ(std::get<3>(p), v1);
+  ASSERT_EQ(std::get<4>(p), v2);
+}
+
+INSTANTIATE_TEST_CASE_P(variousVectors, ZipShortestWrite,
+  ::testing::Values(zsw_spec{vec{}, vec{}, zsw_source{}, vec{}, vec{}},
+    zsw_spec{vec{0}, vec{}, zsw_source{{1, -1}}, vec{0}, vec{}},
+    zsw_spec{vec{}, vec{0}, zsw_source{{1, -1}}, vec{}, vec{0}},
+    zsw_spec{vec{0}, vec{0}, zsw_source{{1, -1}}, vec{1}, vec{-1}},
+    zsw_spec{vec{0, 0}, vec{0}, zsw_source{{1, -1}}, vec{1, 0}, vec{-1}},
+    zsw_spec{vec{0}, vec{0, 0}, zsw_source{{1, -1}}, vec{1}, vec{-1, 0}},
+    zsw_spec{vec{0, 0}, vec{0, 0}, zsw_source{{1, -1}}, vec{1, 0}, vec{-1, 0}},
+    zsw_spec{vec{0, 0}, vec{0, 0}, zsw_source{{1, -1}, {2, -2}},
+             vec{1, 2}, vec{-1, -2}}
+  ));
