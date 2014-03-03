@@ -4,10 +4,24 @@
 #include "test.hpp"
 
 using zip_shortest_sp_sp = decltype(zip_shortest(vec{}.sp(), vec{}.sp()));
+using zip_shortest_sp_fwd = decltype(zip_shortest(vec{}.sp(), vec{}.fwd()));
+using zip_shortest_fwd_sp = decltype(zip_shortest(vec{}.fwd(), vec{}.sp()));
 
 static_assert(SinglePassRange<zip_shortest_sp_sp>(),
               "truncating zip of 2 single pass ranges "
               "is not single pass range");
+static_assert(SinglePassRange<zip_shortest_sp_fwd>(),
+              "truncating zip of single pass range and forward range "
+              "is not single pass range");
+static_assert(SinglePassRange<zip_shortest_fwd_sp>(),
+              "truncating zip of forward range and single pass range "
+              "is not single pass range");
+static_assert(!ForwardRange<zip_shortest_sp_fwd>(),
+              "truncating zip of single pass range and forward range "
+              "claims to be forward range");
+static_assert(!ForwardRange<zip_shortest_fwd_sp>(),
+              "truncating zip of forward range and single pass range "
+              "claims to be forward range");
 
 using zsr_result = std::vector<std::tuple<int, int>>;
 using zsr_spec = std::tuple<vec, vec, zsr_result>;
@@ -60,3 +74,27 @@ INSTANTIATE_TEST_CASE_P(variousVectors, ZipShortestWrite,
     zsw_spec{vec{0, 0}, vec{0, 0}, zsw_source{{1, -1}, {2, -2}},
              vec{1, 2}, vec{-1, -2}}
   ));
+
+TEST(ZipShortest, swap) {
+  vec v1 = { 1, 2 }, v2 = { -1, -2 };
+  auto r1 = zip_shortest(v1.sp(), v2.sp());
+  auto r2 = zip_shortest(v1.sp(), v2.sp());
+  r2.drop_front();
+  using std::swap;
+  swap(r1.front(), r2.front());
+  ASSERT_EQ((vec{2, 1}), v1);
+  ASSERT_EQ((vec{-2, -1}), v2);
+
+  auto t1 = std::make_tuple(3, -3);
+  std::tuple<int, int> t0 = r1.front();
+  swap(r1.front(), t1);
+  ASSERT_EQ((vec{3, 1}), v1);
+  ASSERT_EQ((vec{-3, -1}), v2);
+  ASSERT_EQ(t0, t1);
+
+  t0 = r2.front();
+  swap(t1, r2.front());
+  ASSERT_EQ((vec{3, 2}), v1);
+  ASSERT_EQ((vec{-3, -2}), v2);
+  ASSERT_EQ(t0, t1);
+}

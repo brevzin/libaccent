@@ -34,6 +34,16 @@ namespace accent { namespace ranges {
       ignore((op(std::get<Indices>(t)), 0)...);
     }
 
+    template <typename Tuple1, typename Tuple2, typename Op,
+              std::size_t... Indices>
+    void apply2_impl(Tuple1& t1, Tuple2& t2, Op op,
+                     std::index_sequence<Indices...>) {
+      static_assert(std::tuple_size<Tuple1>::value ==
+                        std::tuple_size<Tuple2>::value,
+                    "Tuples must be same size.");
+      ignore((op(std::get<Indices>(t1), std::get<Indices>(t2)), 0)...);
+    }
+
     struct empty_op {
       template <typename Range>
       bool operator ()(const Range& r) const { return r.empty(); }
@@ -47,6 +57,14 @@ namespace accent { namespace ranges {
     struct drop_front_op {
       template <typename Range>
       void operator ()(Range& r) const { r.drop_front(); }
+    };
+
+    struct swap_op {
+      template <typename T, typename Y>
+      void operator ()(T& t, Y& y) const {
+        using std::swap;
+        swap(t, y);
+      }
     };
 
     template <typename Derived, typename Tag, typename... Inners>
@@ -122,5 +140,34 @@ namespace accent { namespace ranges {
   void zip_shortest() = delete;
 
 }}
+
+// Overload swap for tuples of references. Unfortunately, this has to happen
+// in namespace std, without a user-defined type. This is technically undefined.
+namespace std {
+
+  template <typename... Ts>
+  void swap(tuple<Ts&...> t1, tuple<Ts&...> t2) {
+    ::accent::ranges::detail_zip::apply2_impl(t1, t2,
+        ::accent::ranges::detail_zip::swap_op{},
+        index_sequence_for<Ts...>());
+  }
+
+  template <typename... Ts, typename... Ys>
+  void swap(tuple<Ts...>& t1, tuple<Ys&...> t2) {
+    static_assert(sizeof...(Ts) == sizeof...(Ys), "Tuples must be same size.");
+    ::accent::ranges::detail_zip::apply2_impl(t1, t2,
+        ::accent::ranges::detail_zip::swap_op{},
+        index_sequence_for<Ts...>());
+  }
+
+  template <typename... Ts, typename... Ys>
+  void swap(tuple<Ts&...> t1, tuple<Ys...>& t2) {
+    static_assert(sizeof...(Ts) == sizeof...(Ys), "Tuples must be same size.");
+    ::accent::ranges::detail_zip::apply2_impl(t1, t2,
+        ::accent::ranges::detail_zip::swap_op{},
+        index_sequence_for<Ts...>());
+  }
+
+}
 
 #endif
