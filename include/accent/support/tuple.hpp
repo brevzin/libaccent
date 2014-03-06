@@ -65,6 +65,27 @@ namespace accent { namespace support {
     apply_tuple(for_variadic_t<Fn>(fn), std::forward<Tuple>(args));
   }
 
+  template <typename Fn>
+  class reduce_variadic_t {
+    Fn fn;
+
+  public:
+    explicit reduce_variadic_t(Fn fn) : fn(std::move(fn)) {}
+    template <typename Arg, typename... Args>
+    auto operator ()(Arg arg, Args... args) const {
+      return fn(arg, (*this)(args...));
+    }
+    template <typename Arg>
+    auto operator ()(Arg arg) const {
+      return arg;
+    }
+  };
+
+  template <typename Fn, typename Tuple>
+  auto reduce_tuple(Fn fn, Tuple&& args) {
+    return apply_tuple(reduce_variadic_t<Fn>(fn), std::forward<Tuple>(args));
+  }
+
 }}
 
 #endif
