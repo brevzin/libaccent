@@ -23,6 +23,12 @@ static_assert(!ForwardRange<zip_shortest_fwd_sp>(),
               "truncating zip of forward range and single pass range "
               "claims to be forward range");
 
+using zip_shortest_fwd_fwd = decltype(zip_shortest(vec{}.fwd(), vec{}.fwd()));
+
+static_assert(ForwardRange<zip_shortest_fwd_fwd>(),
+              "truncating zip of 2 forward ranges "
+              "is not forward range");
+
 using zsr_result = std::vector<std::tuple<int, int>>;
 using zsr_spec = std::tuple<vec, vec, zsr_result>;
 
@@ -97,4 +103,30 @@ TEST(ZipShortest, swap) {
   ASSERT_EQ((vec{3, 2}), v1);
   ASSERT_EQ((vec{-3, -2}), v2);
   ASSERT_EQ(t0, t1);
+}
+
+TEST(ZipShortest, empty_at_front_invalid) {
+  vec v1 = {}, v2 = {};
+  auto r = zip_shortest(v1.fwd(), v2.fwd());
+  ASSERT_FALSE(r.at_front().valid());
+}
+
+TEST(ZipShortest, one_empty_at_front_invalid) {
+  vec v1 = { 1 }, v2 = {};
+  auto r = zip_shortest(v1.fwd(), v2.fwd());
+  //ASSERT_FALSE(r.at_front().valid());
+}
+
+TEST(ZipShortest, empty_one_at_front_invalid) {
+  vec v1 = {}, v2 = { -1 };
+  auto r = zip_shortest(v1.fwd(), v2.fwd());
+  ASSERT_FALSE(r.at_front().valid());
+}
+
+TEST(ZipShortest, one_at_front_references_element) {
+  vec v1 = { 1 }, v2 = { -1 };
+  auto r = zip_shortest(v1.fwd(), v2.fwd());
+  auto p = r.at_front();
+  ASSERT_TRUE(p.valid());
+  ASSERT_EQ(std::make_tuple(1, -1), *p);
 }
