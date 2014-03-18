@@ -2,6 +2,7 @@
 #define LIBACCENT_RANGES_CONCAT_HPP
 
 #include "accent/support/dispatch.hpp"
+#include "accent/support/functors.hpp"
 #include "accent/support/range.hpp"
 #include "accent/support/variant.hpp"
 #include <cassert>
@@ -17,19 +18,6 @@ namespace accent { namespace ranges {
 
     template <typename Derived, typename Tag, typename... Inners>
     class concat_range_impl;
-
-    struct empty_op {
-      template <typename Range>
-      bool operator ()(const Range& r) const { return r.empty(); }
-    };
-    struct front_op {
-      template <typename Range>
-      decltype(auto) operator ()(const Range& r) const { return r.front(); }
-    };
-    struct drop_front_op {
-      template <typename Range>
-      void operator ()(Range& r) const { r.drop_front(); }
-    };
 
     template <typename Derived, typename... Inners>
     class concat_range_impl<Derived, single_pass_traversal_tag, Inners...>
@@ -70,17 +58,17 @@ namespace accent { namespace ranges {
       }
 
       value_ref front() const {
-        return apply(front_op{});
+        return apply(support::functors::front_op{});
       }
 
       void drop_front() {
-        apply(drop_front_op{});
+        apply(support::functors::drop_front_op{});
         skip_empty();
       }
 
     private:
       void skip_empty() {
-        while (!empty() && apply(empty_op{})){
+        while (!empty() && apply(support::functors::empty_op{})){
           ++current;
         }
       }
@@ -334,7 +322,7 @@ namespace accent { namespace ranges {
 
     private:
       void skip_empty_back() {
-        while (!this->empty() && apply_back(empty_op{})){
+        while (!this->empty() && apply_back(support::functors::empty_op{})){
           --current_back;
         }
       }

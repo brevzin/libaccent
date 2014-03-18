@@ -1,6 +1,7 @@
 #ifndef LIBACCENT_RANGES_ZIP_HPP
 #define LIBACCENT_RANGES_ZIP_HPP
 
+#include "accent/support/functors.hpp"
 #include "accent/support/range.hpp"
 #include "accent/support/tuple.hpp"
 #include <functional>
@@ -9,23 +10,6 @@
 namespace accent { namespace ranges {
 
   namespace detail_zip {
-
-    struct empty_op {
-      template <typename Range>
-      bool operator ()(const Range& r) const { return r.empty(); }
-    };
-
-    struct front_op {
-      template <typename Range>
-      decltype(auto) operator ()(const Range& r) const { return r.front(); }
-    };
-
-    struct drop_front_op {
-      template <typename Range>
-      void operator ()(Range& r) const {
-        r.drop_front();
-      }
-    };
 
     struct swap_op {
       template <typename T, typename Y>
@@ -69,15 +53,15 @@ namespace accent { namespace ranges {
       using value_type = std::tuple<typename Inners::value_type...>;
 
       bool empty() const {
-        return any(empty_op{});
+        return any(support::functors::empty_op{});
       }
 
       value_ref front() const {
-        return map(front_op{});
+        return map(support::functors::front_op{});
       }
 
       void drop_front() {
-        apply(drop_front_op{});
+        apply(support::functors::drop_front_op{});
       }
     };
 
