@@ -114,7 +114,7 @@ TEST(ZipShortest, empty_at_front_invalid) {
 TEST(ZipShortest, one_empty_at_front_invalid) {
   vec v1 = { 1 }, v2 = {};
   auto r = zip_shortest(v1.fwd(), v2.fwd());
-  //ASSERT_FALSE(r.at_front().valid());
+  ASSERT_FALSE(r.at_front().valid());
 }
 
 TEST(ZipShortest, empty_one_at_front_invalid) {

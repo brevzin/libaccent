@@ -72,6 +72,12 @@ namespace accent { namespace ranges {
       positions inners;
 
       template <typename Op>
+      bool all(Op op) const {
+        return support::reduce_tuple(std::logical_and<>(),
+                                     support::map_tuple(op, inners));
+      }
+
+      template <typename Op>
       auto map(Op op) const {
         return support::map_tuple(op, inners);
       }
@@ -81,7 +87,9 @@ namespace accent { namespace ranges {
 
       zip_position() noexcept = default;
       zip_position(positions inners) : inners(inners) {}
-      bool valid() const { return std::get<0>(inners).valid(); }
+      bool valid() const {
+        return all(support::functors::valid_op{});
+      }
       explicit operator bool() const { return valid(); }
       value_ref operator *() const {
         return map(support::functors::deref_op{});
