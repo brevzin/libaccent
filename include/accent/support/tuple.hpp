@@ -19,6 +19,18 @@ namespace accent { namespace support {
         return std::forward<Fn>(fn)(std::get<Indices>(args)...);
       }
 
+      template <std::size_t Index, typename... Tuples>
+      auto get_all(Tuples&&... tuples) {
+        return std::forward_as_tuple(std::get<Index>(tuples)...);
+      }
+
+      template <std::size_t... Indices, typename... Tuples>
+      auto transpose_tuples_impl(std::index_sequence<Indices...>,
+                                 Tuples&&... tuples) {
+        return std::make_tuple(
+            get_all<Indices>(std::forward<Tuples>(tuples)...)...);
+      }
+
   }
 
   template <typename Fn, typename Tuple>
@@ -37,14 +49,23 @@ namespace accent { namespace support {
   public:
     explicit map_variadic_t(Fn fn) : fn(std::move(fn)) {}
     template <typename... Args>
-    auto operator ()(Args... args) const {
-      return std::make_tuple(fn(args)...);
+    auto operator ()(Args&&... args) const {
+      return std::tuple<decltype(fn(std::forward<Args>(args)))...>(
+                 fn(std::forward<Args>(args))...);
     }
   };
 
   template <typename Fn, typename Tuple>
   auto map_tuple(Fn fn, Tuple&& args) {
     return apply_tuple(map_variadic_t<Fn>(fn), std::forward<Tuple>(args));
+  }
+
+  template <typename Tuple, typename... Tuples>
+  auto transpose_tuples(Tuple&& arg, Tuples&&... args) {
+    return detail_variadics::transpose_tuples_impl(
+        detail_variadics::tuple_index_sequence<
+            typename std::decay<Tuple>::type>(),
+        std::forward<Tuple>(arg), std::forward<Tuples>(args)...);
   }
 
   template <typename Fn>
@@ -54,15 +75,18 @@ namespace accent { namespace support {
   public:
     explicit for_variadic_t(Fn fn) : fn(std::move(fn)) {}
     template <typename... Args>
-    void operator ()(Args... args) const {
+    void operator ()(Args&&... args) const {
       using ignore = int[];
-      (void)ignore{(fn(args), 0)...};
+      (void)ignore{
+        (apply_tuple(fn, std::forward<Args>(args)), 0)...
+      };
     }
   };
 
-  template <typename Fn, typename Tuple>
-  void for_tuple(Fn fn, Tuple&& args) {
-    apply_tuple(for_variadic_t<Fn>(fn), std::forward<Tuple>(args));
+  template <typename Fn, typename... Tuples>
+  void for_tuple(Fn fn, Tuples&&... args) {
+    apply_tuple(for_variadic_t<Fn>(fn),
+                transpose_tuples(std::forward<Tuples>(args)...));
   }
 
   template <typename Fn>
@@ -72,8 +96,8 @@ namespace accent { namespace support {
   public:
     explicit reduce_variadic_t(Fn fn) : fn(std::move(fn)) {}
     template <typename Arg, typename... Args>
-    auto operator ()(Arg arg, Args... args) const {
-      return fn(arg, (*this)(args...));
+    auto operator ()(Arg&& arg, Args&&... args) const {
+      return fn(std::forward<Arg>(arg), (*this)(std::forward<Args>(args)...));
     }
     template <typename Arg>
     auto operator ()(Arg arg) const {
