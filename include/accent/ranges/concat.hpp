@@ -89,16 +89,6 @@ namespace accent { namespace ranges {
       return true;
     }
 
-    struct valid_op {
-      template <typename Position>
-      bool operator ()(const Position& p) const { return p.valid(); }
-    };
-
-    struct deref_op {
-      template <typename Position>
-      decltype(auto) operator ()(const Position& p) const { return *p; }
-    };
-
     template <typename Position>
     class equal_op {
       Position p;
@@ -138,9 +128,11 @@ namespace accent { namespace ranges {
       decltype(auto) apply(Operation op) const { return data.apply(op); }
       int which() const { return data.which(); }
 
-      bool valid() const { return apply(valid_op()); }
+      bool valid() const { return apply(support::functors::valid_op()); }
       explicit operator bool() const { return valid(); }
-      value_ref operator *() const { return apply(deref_op{}); }
+      value_ref operator *() const {
+        return apply(support::functors::deref_op{});
+      }
     };
 
     template <typename... Positions>

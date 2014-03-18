@@ -18,6 +18,16 @@ namespace accent { namespace support { namespace functors {
     void operator ()(Range& r) const { r.drop_front(); }
   };
 
+  struct valid_op {
+    template <typename Position>
+    bool operator ()(const Position& p) const { return p.valid(); }
+  };
+
+  struct deref_op {
+    template <typename Position>
+    decltype(auto) operator ()(const Position& p) const { return *p; }
+  };
+
 }}}
 
 #endif

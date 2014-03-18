@@ -65,16 +65,6 @@ namespace accent { namespace ranges {
       }
     };
 
-    struct deref_op {
-      template <typename Position>
-      decltype(auto) operator ()(const Position& p) const { return *p; }
-    };
-
-    struct valid_op {
-      template <typename Position>
-      bool operator ()(const Position& p) const { return p.valid(); }
-    };
-
     template <typename... Inners>
     class zip_position {
       using positions = std::tuple<Inners...>;
@@ -94,7 +84,7 @@ namespace accent { namespace ranges {
       bool valid() const { return std::get<0>(inners).valid(); }
       explicit operator bool() const { return valid(); }
       value_ref operator *() const {
-        return map(deref_op{});
+        return map(support::functors::deref_op{});
       }
 
       friend bool operator ==(const zip_position& l, const zip_position& r);
