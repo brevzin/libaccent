@@ -19,14 +19,26 @@ namespace accent { namespace support {
         return std::forward<Fn>(fn)(std::get<Indices>(args)...);
       }
 
+      template <typename Tuple, std::size_t Index>
+      class zip_type {
+        using element_type = typename std::tuple_element<Index,
+            typename std::decay<Tuple>::type>::type;
+        static constexpr bool make_ref = std::is_lvalue_reference<Tuple>::value;
+      public:
+        using type = typename std::conditional<make_ref,
+            typename std::add_lvalue_reference<element_type>::type,
+            element_type>::type;
+      };
+
       template <std::size_t Index, typename... Tuples>
       auto get_all(Tuples&&... tuples) {
-        return std::forward_as_tuple(std::get<Index>(tuples)...);
+        return std::tuple<typename zip_type<Tuples, Index>::type...>(
+            std::get<Index>(tuples)...);
       }
 
       template <std::size_t... Indices, typename... Tuples>
-      auto transpose_tuples_impl(std::index_sequence<Indices...>,
-                                 Tuples&&... tuples) {
+      auto zip_tuples_impl(std::index_sequence<Indices...>,
+                           Tuples&&... tuples) {
         return std::make_tuple(
             get_all<Indices>(std::forward<Tuples>(tuples)...)...);
       }
@@ -61,8 +73,8 @@ namespace accent { namespace support {
   }
 
   template <typename Tuple, typename... Tuples>
-  auto transpose_tuples(Tuple&& arg, Tuples&&... args) {
-    return detail_variadics::transpose_tuples_impl(
+  auto zip_tuples(Tuple&& arg, Tuples&&... args) {
+    return detail_variadics::zip_tuples_impl(
         detail_variadics::tuple_index_sequence<
             typename std::decay<Tuple>::type>(),
         std::forward<Tuple>(arg), std::forward<Tuples>(args)...);
@@ -78,15 +90,14 @@ namespace accent { namespace support {
     void operator ()(Args&&... args) const {
       using ignore = int[];
       (void)ignore{
-        (apply_tuple(fn, std::forward<Args>(args)), 0)...
+        (fn(std::forward<Args>(args)), 0)...
       };
     }
   };
 
-  template <typename Fn, typename... Tuples>
-  void for_tuple(Fn fn, Tuples&&... args) {
-    apply_tuple(for_variadic_t<Fn>(fn),
-                transpose_tuples(std::forward<Tuples>(args)...));
+  template <typename Fn, typename Tuple>
+  void for_tuple(Fn fn, Tuple&& args) {
+    apply_tuple(for_variadic_t<Fn>(fn), std::forward<Tuple>(args));
   }
 
   template <typename Fn>

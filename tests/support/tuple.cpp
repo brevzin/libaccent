@@ -37,20 +37,31 @@ TEST(Variadics, ForTuple) {
   ASSERT_EQ("52.5 ", s.str());
 }
 
-TEST(Variadics, ForTupleN) {
-  std::ostringstream s;
-  struct Fn {
-    std::ostringstream& s;
-    template <typename T, typename U>
-    void operator ()(T t, U u) const {
-      s << t << ":" << u << " ";
-    }
-  };
-  Fn fn{s};
-  auto tuple1 = std::make_tuple(5, 2.5, 'x');
-  auto tuple2 = std::make_tuple(1.5, 't', 9);
-  for_tuple(fn, tuple1, tuple2);
-  ASSERT_EQ("5:1.5 2.5:t x:9 ", s.str());
+TEST(Variadics, ZipTuples) {
+  auto t1 = std::make_tuple(42, 19); // values
+  int i = 1, j = 9;
+  auto t2 = std::tie(i, j); // references
+  auto z1 = zip_tuples(t1, t2);
+  auto z2 = zip_tuples(std::make_tuple(42, 19), std::tie(i, j));
+  static_assert(std::is_same<std::tuple<
+                                 std::tuple<int&, int&>,
+                                 std::tuple<int&, int&>>,
+                             decltype(z1)>::value,
+      "zip of tuple lvalues should yield only lvalue refs");
+  static_assert(std::is_same<std::tuple<
+                                 std::tuple<int, int&>,
+                                 std::tuple<int, int&>>,
+                             decltype(z2)>::value,
+      "zip of tuple rvalues should preserve element types");
+  ASSERT_EQ(42, std::get<0>(std::get<0>(z1)));
+  ASSERT_EQ(1, std::get<1>(std::get<0>(z1)));
+  ASSERT_EQ(19, std::get<0>(std::get<1>(z1)));
+  ASSERT_EQ(9, std::get<1>(std::get<1>(z1)));
+
+  ASSERT_EQ(42, std::get<0>(std::get<0>(z2)));
+  ASSERT_EQ(1, std::get<1>(std::get<0>(z2)));
+  ASSERT_EQ(19, std::get<0>(std::get<1>(z2)));
+  ASSERT_EQ(9, std::get<1>(std::get<1>(z2)));
 }
 
 TEST(Variadics, ReduceTuple) {

@@ -12,10 +12,10 @@ namespace accent { namespace ranges {
   namespace detail_zip {
 
     struct swap_op {
-      template <typename T, typename Y>
-      void operator ()(T& t, Y& y) const {
+      template <typename T, typename U>
+      void operator ()(std::tuple<T&, U&> tu) const {
         using std::swap;
-        swap(t, y);
+        swap(std::get<0>(tu), std::get<1>(tu));
       }
     };
 
@@ -165,21 +165,24 @@ namespace std {
   template <typename... Ts>
   void swap(tuple<Ts&...> t1, tuple<Ts&...> t2) {
     ::accent::support::for_tuple(
-        ::accent::ranges::detail_zip::swap_op{}, t1, t2);
+        ::accent::ranges::detail_zip::swap_op{},
+        ::accent::support::zip_tuples(t1, t2));
   }
 
   template <typename... Ts, typename... Ys>
   void swap(tuple<Ts...>& t1, tuple<Ys&...> t2) {
     static_assert(sizeof...(Ts) == sizeof...(Ys), "Tuples must be same size.");
     ::accent::support::for_tuple(
-        ::accent::ranges::detail_zip::swap_op{}, t1, t2);
+        ::accent::ranges::detail_zip::swap_op{},
+        ::accent::support::zip_tuples(t1, t2));
   }
 
   template <typename... Ts, typename... Ys>
   void swap(tuple<Ts&...> t1, tuple<Ys...>& t2) {
     static_assert(sizeof...(Ts) == sizeof...(Ys), "Tuples must be same size.");
     ::accent::support::for_tuple(
-        ::accent::ranges::detail_zip::swap_op{}, t1, t2);
+        ::accent::ranges::detail_zip::swap_op{},
+        ::accent::support::zip_tuples(t1, t2));
   }
 
 }

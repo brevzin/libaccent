@@ -130,3 +130,12 @@ TEST(ZipShortest, one_at_front_references_element) {
   ASSERT_TRUE(p.valid());
   ASSERT_EQ(std::make_tuple(1, -1), *p);
 }
+
+TEST(ZipShortest, two_drop_front_at_front_references_element) {
+  vec v1 = { 1, 2 }, v2 = { -1, -2 };
+  auto r = zip_shortest(v1.fwd(), v2.fwd());
+  r.drop_front();
+  auto p = r.at_front();
+  ASSERT_TRUE(p.valid());
+  ASSERT_EQ(std::make_tuple(2, -2), *p);
+}
