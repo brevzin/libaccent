@@ -139,3 +139,19 @@ TEST(ZipShortest, two_drop_front_at_front_references_element) {
   ASSERT_TRUE(p.valid());
   ASSERT_EQ(std::make_tuple(2, -2), *p);
 }
+
+TEST(ZipShortest, position_equality) {
+  vec v1 = { 1, 2 }, v2 = { -1, -2 };
+  auto r = zip_shortest(v1.fwd(), v2.fwd());
+  auto p1 = r.at_front();
+  r.drop_front();
+  auto p2 = r.at_front();
+  auto p3 = r.at_front();
+  r.drop_front();
+  auto p4 = r.at_front();
+  auto p5 = r.at_front();
+  ASSERT_TRUE(p1 != p2);
+  ASSERT_TRUE(p2 == p3);
+  ASSERT_TRUE(p3 != p4);
+  ASSERT_TRUE(p4 == p5);
+}

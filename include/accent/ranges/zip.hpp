@@ -65,6 +65,13 @@ namespace accent { namespace ranges {
       }
     };
 
+    struct equal_op {
+      template <typename P>
+      bool operator ()(const std::tuple<P, P>& ps) const {
+        return std::get<0>(ps) == std::get<1>(ps);
+      }
+    };
+
     template <typename... Inners>
     class zip_position {
       using positions = std::tuple<Inners...>;
@@ -95,7 +102,11 @@ namespace accent { namespace ranges {
         return map(support::functors::deref_op{});
       }
 
-      friend bool operator ==(const zip_position& l, const zip_position& r);
+      friend bool operator ==(const zip_position& l, const zip_position& r) {
+        return support::reduce_tuple(std::logical_and<>(),
+            support::map_tuple(equal_op{},
+                               support::zip_tuples(l.inners, r.inners)));
+      }
     };
 
     template <typename... Inners>

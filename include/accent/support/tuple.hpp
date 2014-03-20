@@ -24,10 +24,15 @@ namespace accent { namespace support {
         using element_type = typename std::tuple_element<Index,
             std::decay_t<Tuple>>::type;
         static constexpr bool make_ref = std::is_lvalue_reference<Tuple>::value;
+        using maybe_const_tuple = std::remove_reference_t<Tuple>;
+        static constexpr bool make_const =
+            std::is_const<maybe_const_tuple>::value;
+        using const_adjusted_element_type = std::conditional_t<make_const,
+            std::add_const_t<element_type>, element_type>;
       public:
         using type = std::conditional_t<make_ref,
-            std::add_lvalue_reference_t<element_type>,
-            element_type>;
+            std::add_lvalue_reference_t<const_adjusted_element_type>,
+            const_adjusted_element_type>;
       };
 
       template <std::size_t Index, typename... Tuples>
