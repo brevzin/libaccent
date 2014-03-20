@@ -22,12 +22,12 @@ namespace accent { namespace support {
       template <typename Tuple, std::size_t Index>
       class zip_type {
         using element_type = typename std::tuple_element<Index,
-            typename std::decay<Tuple>::type>::type;
+            std::decay_t<Tuple>>::type;
         static constexpr bool make_ref = std::is_lvalue_reference<Tuple>::value;
       public:
-        using type = typename std::conditional<make_ref,
-            typename std::add_lvalue_reference<element_type>::type,
-            element_type>::type;
+        using type = std::conditional_t<make_ref,
+            std::add_lvalue_reference_t<element_type>,
+            element_type>;
       };
 
       template <std::size_t Index, typename... Tuples>
