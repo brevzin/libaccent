@@ -89,6 +89,9 @@ namespace accent { namespace ranges {
         return support::map_tuple(op, inners);
       }
 
+      template <typename D, typename T, typename... I>
+      friend class zip_shortest_range_impl;
+
     public:
       using value_type = std::tuple<typename Inners::value_type...>;
 
@@ -120,6 +123,13 @@ namespace accent { namespace ranges {
       auto operator ()(const T& t) const { return t.at_front(); }
     };
 
+    struct set_front_op {
+      template <typename R, typename P>
+      void operator ()(const std::tuple<R&, P&>& rp) const {
+        std::get<0>(rp).set_front(std::get<1>(rp));
+      }
+    };
+
     template <typename Derived, typename... Inners>
     class zip_shortest_range_impl<Derived, forward_traversal_tag, Inners...>
         : public zip_shortest_range_impl<Derived, single_pass_traversal_tag,
@@ -136,7 +146,10 @@ namespace accent { namespace ranges {
         return position(this->map(at_front_op{}));
       }
 
-      void set_front(position);
+      void set_front(position p) {
+        support::for_tuple(set_front_op{},
+                           support::zip_tuples(this->inners, p.inners));
+      }
     };
 
   }

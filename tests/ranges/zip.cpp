@@ -155,3 +155,13 @@ TEST(ZipShortest, position_equality) {
   ASSERT_TRUE(p3 != p4);
   ASSERT_TRUE(p4 == p5);
 }
+
+TEST(ZipShortest, set_front) {
+  vec v1 = { 1, 2 }, v2 = { -1, -2 };
+  auto r = zip_shortest(v1.fwd(), v2.fwd());
+  auto s = r;
+  s.drop_front();
+  r.set_front(s.at_front());
+  ASSERT_FALSE(r.empty());
+  ASSERT_EQ(std::make_tuple(2, -2), r.front());
+}
